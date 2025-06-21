@@ -42,17 +42,17 @@ const songCreationSchema = z.object({
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
   styleVoice: z.string().optional(),
-  deliveryTime: z.enum(["2h", "1h", "30m"], { required_error: "Debes seleccionar un tiempo de entrega." }),
+  plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
   famousCollaboration: z.boolean().default(false),
 });
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
 
-const deliveryOptions = [
-  { value: "2h", label: "Estándar", time: "2 hrs", price: "$" },
-  { value: "1h", label: "Rápida", time: "1 hr", price: "$$" },
-  { value: "30m", label: "Express", time: "30 min", price: "$$$" },
+const planOptions = [
+  { value: "creator", label: "Creador", description: "1 Revisión", price: "$" },
+  { value: "artist", label: "Artista", description: "2 Revisiones", price: "$$" },
+  { value: "master", label: "Maestro", description: "3 Revisiones", price: "$$$" },
 ];
 
 export function SongCreationForm() {
@@ -78,7 +78,7 @@ export function SongCreationForm() {
       keywords: "",
       referenceSong: "",
       styleVoice: "",
-      deliveryTime: "1h",
+      plan: "artist",
       famousCollaboration: false,
     },
   });
@@ -221,13 +221,13 @@ export function SongCreationForm() {
 
         <FormField
           control={form.control}
-          name="deliveryTime"
+          name="plan"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel className="font-headline text-lg">Velocidad de Entrega</FormLabel>
+              <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
               <FormControl>
                 <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">
-                  {deliveryOptions.map(option => (
+                  {planOptions.map(option => (
                     <FormItem key={option.value} className="flex-1">
                       <FormControl>
                         <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
@@ -236,7 +236,7 @@ export function SongCreationForm() {
                           className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center"
                         >
                           <span className="font-bold text-lg">{option.label}</span>
-                          <span className="text-sm font-medium">{option.time}</span>
+                          <span className="text-sm font-medium">{option.description}</span>
                           <span className="text-sm text-amber-500 font-bold mt-1">{option.price}</span>
                         </Label>
                       </FormControl>

@@ -17,6 +17,7 @@ const actionSchema = z.object({
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
   styleVoice: z.string().optional(),
+  plan: z.enum(["creator", "artist", "master"]),
 });
 
 export async function createSongAction(data: z.infer<typeof actionSchema>) {

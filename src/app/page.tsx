@@ -286,27 +286,25 @@ export default function Home() {
       <section id="precios" className="py-20 sm:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-headline text-4xl font-bold">Planes Para Cada Urgencia</h2>
+            <h2 className="font-headline text-4xl font-bold">Planes a tu Medida</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Elige la velocidad que tu inspiración necesita. Misma calidad, diferente ritmo.
+              Creamos la canción ideal para tu historia. Misma calidad, más beneficios.
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-            {/* Standard Plan */}
+            {/* Plan Creador */}
             <Card className="flex flex-col">
               <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Estándar</CardTitle>
-                <CardDescription className="text-lg font-bold text-primary">2 horas</CardDescription>
+                <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
+                <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
-                 <p className="text-center text-muted-foreground min-h-[48px]">
-                    Perfecto para planear con calma tu sorpresa.
-                 </p>
                  <Separator />
                 <ul className="space-y-2 text-muted-foreground pt-4">
-                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción (Emocional o Corrido)</span></li>
                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
-                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>1 Revisión incluida</span></li>
                 </ul>
               </CardContent>
               <CardFooter className="flex-col gap-4">
@@ -317,7 +315,7 @@ export default function Home() {
               </CardFooter>
             </Card>
 
-            {/* Fast Plan - Recommended */}
+            {/* Plan Artista - Recommended */}
             <Card className="flex flex-col border-2 border-accent-gold shadow-2xl relative lg:-translate-y-4">
               <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                   <div className="bg-accent-gold text-accent-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
@@ -325,18 +323,16 @@ export default function Home() {
                   </div>
               </div>
               <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Rápida</CardTitle>
-                <CardDescription className="text-lg font-bold text-accent-gold">1 hora</CardDescription>
+                <CardTitle className="font-headline text-3xl">Plan Artista</CardTitle>
+                <CardDescription className="text-lg text-accent-gold">El más popular para un resultado increíble.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
-                <p className="text-center text-muted-foreground min-h-[48px]">
-                    Ideal para sorpresas el mismo día.
-                </p>
                 <Separator />
                 <ul className="space-y-2 text-muted-foreground pt-4">
-                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
-                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
-                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción (Emocional o Corrido)</span></li>
+                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
+                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional MP3</span></li>
+                   <li className="flex items-center gap-3 font-bold text-foreground"><CheckCircle className="w-5 h-5 text-green-500" /><span>2 Revisiones incluidas</span></li>
                    <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Entrega prioritaria</span></li>
                 </ul>
               </CardContent>
@@ -348,21 +344,19 @@ export default function Home() {
               </CardFooter>
             </Card>
 
-            {/* Express Plan */}
+            {/* Plan Maestro */}
             <Card className="flex flex-col">
               <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Express</CardTitle>
-                <CardDescription className="text-lg font-bold text-primary">30 minutos</CardDescription>
+                <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
+                <CardDescription className="text-lg">La experiencia completa.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
-                <p className="text-center text-muted-foreground min-h-[48px]">
-                    Para regalos de último minuto. Máxima velocidad.
-                </p>
                  <Separator />
                 <ul className="space-y-2 text-muted-foreground pt-4">
-                 <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción (Emocional o Corrido)</span></li>
                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
-                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional MP3</span></li>
+                  <li className="flex items-center gap-3 font-bold text-foreground"><CheckCircle className="w-5 h-5 text-green-500" /><span>3 Revisiones incluidas</span></li>
                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Entrega ultra-rápida</span></li>
                 </ul>
               </CardContent>
