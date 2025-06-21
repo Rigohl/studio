@@ -38,7 +38,7 @@ export function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-4">
-           <Link href="/test-pago" passHref>
+           <Link href="/formularios" passHref>
             <Button className="font-bold bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-md">
                 Crear Canción
             </Button>

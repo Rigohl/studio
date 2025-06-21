@@ -32,29 +32,25 @@ const useCases = [
         icon: Gift,
         title: "Un Regalo Inolvidable",
         description: "Sorprende en un aniversario, cumpleaños o boda con una canción que narre vuestra historia de amor o amistad.",
-        imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'elegant gift box',
+        link: "/formularios?type=emotional",
     },
     {
         icon: MicVocal,
         title: "Tu Corrido Personal",
         description: "Inmortaliza tu legado, hazañas o la historia de tu familia en un corrido bélico o tumbado que imponga respeto.",
-        imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'man with guitar',
+        link: "/formularios?type=corrido",
     },
     {
         icon: Building,
         title: "La Canción de tu Marca",
         description: "Crea un jingle pegadizo o un himno para tu empresa que conecte con tus clientes y refuerce tu identidad.",
-        imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'startup office',
+        link: "/formularios",
     },
     {
         icon: PartyPopper,
         title: "Momentos Especiales",
         description: "Dale una banda sonora a una graduación, despedida, o cualquier evento que merezca ser recordado para siempre.",
-        imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'graduation celebration',
+        link: "/formularios?type=emotional",
     }
 ]
 
@@ -120,7 +116,7 @@ export default function Home() {
           <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in-up">
             Creamos canciones únicas y personalizadas, desde baladas emotivas hasta corridos con fuerza. Transforma tus momentos en música inolvidable.
           </p>
-          <Link href="/test-pago" passHref>
+          <Link href="/formularios" passHref>
             <Button size="lg" className="bg-accent-gold text-accent-foreground font-bold hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-lg animate-fade-in">
                 Crear mi Canción
             </Button>
@@ -141,13 +137,20 @@ export default function Home() {
             {useCases.map((useCase, index) => {
               const Icon = useCase.icon;
               return (
-                <Card key={index} className="bg-secondary/50 border-border/50 text-center p-6 flex flex-col items-center transform transition-transform duration-300 hover:-translate-y-2">
-                   <div className="mb-4 bg-background p-3 rounded-full border-2 border-accent-gold/30">
-                     <Icon className="w-10 h-10 text-accent-gold" />
-                  </div>
-                  <h3 className="font-headline text-2xl font-semibold">{useCase.title}</h3>
-                  <p className="mt-2 text-muted-foreground flex-grow">{useCase.description}</p>
-                </Card>
+                <Link key={index} href={useCase.link} passHref legacyBehavior>
+                    <a className="block transform transition-transform duration-300 hover:-translate-y-2 group h-full">
+                        <Card className="bg-secondary/50 border-border/50 text-center p-6 flex flex-col items-center h-full">
+                            <div className="mb-4 bg-background p-3 rounded-full border-2 border-accent-gold/30">
+                                <Icon className="w-10 h-10 text-accent-gold" />
+                            </div>
+                            <h3 className="font-headline text-2xl font-semibold">{useCase.title}</h3>
+                            <p className="mt-2 text-muted-foreground flex-grow">{useCase.description}</p>
+                            <p className="mt-4 font-semibold text-accent-gold group-hover:underline">
+                                Crear ahora <span aria-hidden="true">&rarr;</span>
+                            </p>
+                        </Card>
+                    </a>
+                </Link>
               );
             })}
           </div>
@@ -278,7 +281,7 @@ export default function Home() {
            <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto mb-8">
             No esperes más para darle vida a tu historia. El proceso es rápido, fácil y el resultado te emocionará.
            </p>
-           <Link href="/test-pago" passHref>
+           <Link href="/formularios" passHref>
             <Button size="lg" className="bg-accent-gold text-accent-foreground font-bold hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-lg">
                 Empezar ahora
             </Button>
