@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, Heart, Skull, Cpu, Rocket, FileText, Send, CreditCard, Star, Quote } from 'lucide-react';
+import { Music, Heart, Skull, Cpu, Rocket, FileText, Send, CreditCard, Star, Quote, Gift, MicVocal, Building, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Image from 'next/image';
 
@@ -27,22 +27,53 @@ const processSteps = [
   },
 ];
 
+const useCases = [
+    {
+        icon: Gift,
+        title: "Un Regalo Inolvidable",
+        description: "Sorprende en un aniversario, cumpleaños o boda con una canción que narre vuestra historia de amor o amistad.",
+        imageSrc: 'https://placehold.co/600x400.png',
+        imageHint: 'couple anniversary gift',
+    },
+    {
+        icon: MicVocal,
+        title: "Tu Corrido Personal",
+        description: "Inmortaliza tu legado, hazañas o la historia de tu familia en un corrido bélico o tumbado que imponga respeto.",
+        imageSrc: 'https://placehold.co/600x400.png',
+        imageHint: 'man serious portrait',
+    },
+    {
+        icon: Building,
+        title: "La Canción de tu Marca",
+        description: "Crea un jingle pegadizo o un himno para tu empresa que conecte con tus clientes y refuerce tu identidad.",
+        imageSrc: 'https://placehold.co/600x400.png',
+        imageHint: 'modern office building',
+    },
+    {
+        icon: PartyPopper,
+        title: "Momentos Especiales",
+        description: "Dale una banda sonora a una graduación, despedida, o cualquier evento que merezca ser recordado para siempre.",
+        imageSrc: 'https://placehold.co/600x400.png',
+        imageHint: 'friends celebrating',
+    }
+]
+
 const examples = [
     {
-      title: 'Corazón de Neón',
-      description: 'Una balada emocional sobre un amor perdido en la ciudad.',
+      title: 'Rosas de Acero',
+      description: 'Una balada rock sobre un amor que resiste a pesar de las dificultades.',
       type: 'Emocional',
       audioSrc: '/audio/placeholder-1.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'abstract heart',
+      imageHint: 'rose on concrete',
     },
     {
-      title: 'El Jefe de la Sierra',
-      description: 'Un corrido tumbado que narra la historia de un líder respetado.',
+      title: 'El Patrón de Culiacán',
+      description: 'Un corrido tumbado que narra con respeto la vida de un líder.',
       type: 'Corrido',
       audioSrc: '/audio/placeholder-2.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'mountain landscape',
+      imageHint: 'mexican desert sunset',
     },
 ];
 
@@ -67,32 +98,6 @@ const testimonials = [
   },
 ];
 
-const features = [
-    {
-        icon: Heart,
-        title: "Baladas que Enamoran",
-        description: "Transformamos tus sentimientos en baladas, pop o el género que prefieras. Perfecto para aniversarios, dedicatorias y momentos especiales.",
-        iconClassName: "text-emotional-pink"
-    },
-    {
-        icon: Skull,
-        title: "Corridos que Imponen",
-        description: "Narramos hazañas y celebramos la lealtad con la fuerza de los corridos tumbados. Historias de poder con un ritmo inconfundible.",
-        iconClassName: "text-corridos-red"
-    },
-    {
-        icon: Cpu,
-        title: "IA de Vanguardia",
-        description: "Utilizamos la más alta tecnología para analizar tu historia y componer una pieza musical que suene auténtica y profesional.",
-        iconClassName: "text-accent-gold"
-    },
-    {
-        icon: Rocket,
-        title: "Entrega Express",
-        description: "Recibe tu canción en cuestión de horas. Elige el plan que mejor se adapte a tu urgencia y sorprende sin esperas.",
-        iconClassName: "text-emotional-mint"
-    }
-]
 
 export default function Home() {
   return (
@@ -101,10 +106,10 @@ export default function Home() {
       <section className="relative w-full h-[90vh] min-h-[600px] flex items-center justify-center text-center overflow-hidden">
         <Image
           src="https://placehold.co/1920x1080.png"
-          alt="Músico componiendo"
+          alt="Músico componiendo en un estudio oscuro"
           fill
           className="object-cover opacity-20"
-          data-ai-hint="music production"
+          data-ai-hint="guitar player moody"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
@@ -123,25 +128,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 sm:py-24">
+      {/* Use Cases Section */}
+      <section id="use-cases" className="py-20 sm:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-headline text-4xl font-bold">Dos Estilos, Un Alma</h2>
+            <h2 className="font-headline text-4xl font-bold">Una Canción Para Cada Ocasión</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              No importa la historia que quieras contar, tenemos el tono perfecto para ella.
+              Tu vida tiene una banda sonora. Nosotros te ayudamos a componerla.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
+            {useCases.map((useCase, index) => {
+              const Icon = useCase.icon;
               return (
-                <Card key={index} className="bg-secondary/50 border-border/50 text-center p-6 flex flex-col items-center">
-                  <div className="mb-4 bg-background p-3 rounded-full">
-                    <Icon className={`w-10 h-10 ${feature.iconClassName}`} />
+                <Card key={index} className="bg-secondary/50 border-border/50 text-center p-6 flex flex-col items-center transform transition-transform duration-300 hover:-translate-y-2">
+                   <div className="mb-4 bg-background p-3 rounded-full border-2 border-accent-gold/30">
+                     <Icon className="w-10 h-10 text-accent-gold" />
                   </div>
-                  <h3 className="font-headline text-2xl font-semibold">{feature.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{feature.description}</p>
+                  <h3 className="font-headline text-2xl font-semibold">{useCase.title}</h3>
+                  <p className="mt-2 text-muted-foreground flex-grow">{useCase.description}</p>
                 </Card>
               );
             })}

@@ -10,8 +10,10 @@ export function Header() {
   const pathname = usePathname();
 
   const navLinks = [
+    { href: "/proceso", label: "Cómo Funciona" },
     { href: "/ejemplos", label: "Ejemplos" },
-    { href: "/proceso", label: "Proceso" },
+    { href: "/quienes-somos", label: "Quiénes Somos" },
+    { href: "/faq", label: "FAQ" },
   ];
 
   return (
@@ -28,7 +30,7 @@ export function Header() {
               href={link.href}
               className={cn(
                 "transition-colors hover:text-foreground/80",
-                pathname === link.href ? "text-foreground" : "text-foreground/60"
+                pathname === link.href ? "text-foreground font-semibold" : "text-foreground/60"
               )}
             >
               {link.label}
