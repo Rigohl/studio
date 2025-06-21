@@ -27,7 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Wand2, Star } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
-import { Label } from "../ui/label";
+import { Label } from "@/components/ui/label";
 
 const songCreationSchema = z.object({
   songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
