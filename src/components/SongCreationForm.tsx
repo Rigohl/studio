@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -55,13 +54,12 @@ const planOptions = [
   { value: "master", label: "Maestro", description: "3 Revisiones", price: "$$$" },
 ];
 
-export function SongCreationForm() {
-  const searchParams = useSearchParams();
+export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SongResult | null>(null);
 
-  const defaultSongType = searchParams.get("type") === "corrido" ? "corrido" : "emotional";
+  const defaultSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
 
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
@@ -238,7 +236,7 @@ export function SongCreationForm() {
                         >
                           <span className="font-bold text-lg">{option.label}</span>
                           <span className="text-sm font-medium">{option.description}</span>
-                          <span className="text-sm text-amber-500 font-bold mt-1">{option.price}</span>
+                          <span className="text-sm text-accent-gold font-bold mt-1">{option.price}</span>
                         </Label>
                       </FormControl>
                     </FormItem>
@@ -253,7 +251,7 @@ export function SongCreationForm() {
         <div className="flex items-center space-x-2">
             <Dialog>
                 <DialogTrigger asChild>
-                    <Button variant="link" className="p-0 h-auto text-accent-gold hover:text-amber-500"><Star className="w-4 h-4 mr-2" />¿Deseas que un FAMOSO ayude a tu canción?</Button>
+                    <Button variant="link" className="p-0 h-auto text-accent-gold hover:text-accent-gold/80"><Star className="w-4 h-4 mr-2" />¿Deseas que un FAMOSO ayude a tu canción?</Button>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
