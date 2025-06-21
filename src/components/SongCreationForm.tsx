@@ -95,13 +95,14 @@ export function SongCreationForm() {
             description: "Escúchala a continuación y procede al pago para descargarla.",
         });
       } else {
-        throw new Error("La respuesta del servidor no fue la esperada.");
+        throw new Error(res.error || "La respuesta del servidor no fue la esperada.");
       }
     } catch (error) {
       console.error(error);
+      const errorMessage = error instanceof Error ? error.message : "Hubo un problema con nuestro sistema de IA. Por favor, inténtalo de nuevo.";
       toast({
         title: "Error al crear la canción",
-        description: "Hubo un problema con nuestro sistema de IA. Por favor, inténtalo de nuevo.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -258,7 +259,29 @@ export function SongCreationForm() {
                     <DialogHeader>
                         <DialogTitle className="font-headline text-2xl">Colaboración Especial</DialogTitle>
                     </DialogHeader>
-                    <p className="py-4">Por un costo adicional, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional a tu canción. ¡Imagina tu historia cantada por una estrella!</p>
+                    <div className="py-4 space-y-4">
+                      <p>Por un costo adicional, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional a tu canción. ¡Imagina tu historia cantada por una estrella!</p>
+                      <p className="text-sm text-muted-foreground">Para ello, selecciona la opción de abajo y escribe el nombre del artista o una canción de referencia en el campo "Estilo de Voz" de los detalles avanzados.</p>
+                       <FormField
+                          control={form.control}
+                          name="famousCollaboration"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel>
+                                 Sí, quiero la colaboración especial
+                                </FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
         </div>
