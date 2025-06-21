@@ -9,7 +9,7 @@ export default function EjemplosPage() {
       type: 'Emocional',
       audioSrc: '/audio/placeholder-1.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'abstract heart',
+      imageHint: 'neon heart',
     },
     {
       title: 'El Jefe de la Sierra',
@@ -17,7 +17,7 @@ export default function EjemplosPage() {
       type: 'Corrido',
       audioSrc: '/audio/placeholder-2.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'mountain landscape',
+      imageHint: 'sierra mountain',
     },
     {
       title: 'Memorias de un Verano',
@@ -25,7 +25,7 @@ export default function EjemplosPage() {
       type: 'Emocional',
       audioSrc: '/audio/placeholder-3.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'summer beach',
+      imageHint: 'beach sunset',
     },
     {
       title: 'La Silverado Negra',
@@ -33,7 +33,7 @@ export default function EjemplosPage() {
       type: 'Corrido',
       audioSrc: '/audio/placeholder-4.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'black truck',
+      imageHint: 'black truck night',
     },
   ];
 

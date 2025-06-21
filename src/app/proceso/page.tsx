@@ -11,8 +11,8 @@ export default function ProcesoPage() {
     },
     {
       icon: Cpu,
-      title: "2. La Magia de la IA",
-      description: "Nuestra inteligencia artificial se pone a trabajar. Analiza tu historia y compone una letra y melodía que capturan la esencia de tu relato, adaptada al género que elegiste.",
+      title: "2. La Fusión Creativa",
+      description: "Combinamos el talento de nuestros músicos con la potencia de la inteligencia artificial. Usando software con licencia y un toque humano, garantizamos que tu canción sea única y de calidad profesional.",
       color: "text-accent-gold"
     },
     {

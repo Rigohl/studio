@@ -33,28 +33,28 @@ const useCases = [
         title: "Un Regalo Inolvidable",
         description: "Sorprende en un aniversario, cumpleaños o boda con una canción que narre vuestra historia de amor o amistad.",
         imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'couple anniversary gift',
+        imageHint: 'elegant gift box',
     },
     {
         icon: MicVocal,
         title: "Tu Corrido Personal",
         description: "Inmortaliza tu legado, hazañas o la historia de tu familia en un corrido bélico o tumbado que imponga respeto.",
         imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'man serious portrait',
+        imageHint: 'man with guitar',
     },
     {
         icon: Building,
         title: "La Canción de tu Marca",
         description: "Crea un jingle pegadizo o un himno para tu empresa que conecte con tus clientes y refuerce tu identidad.",
         imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'modern office building',
+        imageHint: 'startup office',
     },
     {
         icon: PartyPopper,
         title: "Momentos Especiales",
         description: "Dale una banda sonora a una graduación, despedida, o cualquier evento que merezca ser recordado para siempre.",
         imageSrc: 'https://placehold.co/600x400.png',
-        imageHint: 'friends celebrating',
+        imageHint: 'graduation celebration',
     }
 ]
 
@@ -65,7 +65,7 @@ const examples = [
       type: 'Emocional',
       audioSrc: '/audio/placeholder-1.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'rose on concrete',
+      imageHint: 'metal rose',
     },
     {
       title: 'El Patrón de Culiacán',
@@ -73,7 +73,7 @@ const examples = [
       type: 'Corrido',
       audioSrc: '/audio/placeholder-2.mp3',
       imageSrc: 'https://placehold.co/400x400.png',
-      imageHint: 'mexican desert sunset',
+      imageHint: 'man desert silhouette',
     },
 ];
 
@@ -109,7 +109,7 @@ export default function Home() {
           alt="Músico componiendo en un estudio oscuro"
           fill
           className="object-cover opacity-20"
-          data-ai-hint="guitar player moody"
+          data-ai-hint="musician studio dark"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
