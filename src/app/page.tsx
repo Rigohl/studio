@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, Heart, Skull, Cpu, Rocket, FileText, Send, CreditCard, Star, Quote, Gift, MicVocal, Building, PartyPopper } from 'lucide-react';
+import { Music, FileText, Send, CreditCard, Star, Quote } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Image from 'next/image';
+import { Separator } from '@/components/ui/separator';
 
 const processSteps = [
   {
@@ -27,32 +28,20 @@ const processSteps = [
   },
 ];
 
-const useCases = [
-    {
-        icon: Gift,
-        title: "Un Regalo Inolvidable",
-        description: "Sorprende en un aniversario, cumpleaños o boda con una canción que narre vuestra historia de amor o amistad.",
-        link: "/formularios?type=emotional",
-    },
-    {
-        icon: MicVocal,
-        title: "Tu Corrido Personal",
-        description: "Inmortaliza tu legado, hazañas o la historia de tu familia en un corrido bélico o tumbado que imponga respeto.",
-        link: "/formularios?type=corrido",
-    },
-    {
-        icon: Building,
-        title: "La Canción de tu Marca",
-        description: "Crea un jingle pegadizo o un himno para tu empresa que conecte con tus clientes y refuerce tu identidad.",
-        link: "/formularios",
-    },
-    {
-        icon: PartyPopper,
-        title: "Momentos Especiales",
-        description: "Dale una banda sonora a una graduación, despedida, o cualquier evento que merezca ser recordado para siempre.",
-        link: "/formularios?type=emotional",
-    }
-]
+const occasions = [
+  { emoji: "🎂", title: "Cumpleaños", description: "Sorprende a quienes más quieres con una melodía llena de alegría y emoción." },
+  { emoji: "💞", title: "Aniversarios y pareja", description: "Celebra su historia de amor con una canción personalizada repleta de recuerdos." },
+  { emoji: "💍", title: "Boda y propuesta de matrimonio", description: "Sella el “sí” con una creación musical única que perdure para siempre." },
+  { emoji: "👶", title: "Nacimiento", description: "Recibe a la nueva vida con notas tiernas y esperanzadoras." },
+  { emoji: "🎁", title: "Regalo sorpresa", description: "Impacta con un obsequio original, personal y verdaderamente único." },
+  { emoji: "🤩", title: "Momentos divertidos", description: "Añade chispa y risas con una composición fresca y desenfadada." },
+  { emoji: "🙏", title: "Homenajes y agradecimientos", description: "Expresa tu gratitud de la forma más conmovedora." },
+];
+
+const guarantees = [
+    { emoji: "🔒", title: "100 % personalizada y confidencial", description: "Cada canción nace de tus palabras y emociones, con total privacidad." },
+    { emoji: "📜", title: "Tu canción es tuya", description: "Disfrútala toda la vida y compártela cuando quieras." },
+];
 
 const examples = [
     {
@@ -178,36 +167,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Use Cases Section */}
-      <section id="use-cases" className="py-20 sm:py-24">
+      {/* Occasions Section */}
+      <section id="occasions" className="py-20 sm:py-24">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-headline text-4xl font-bold">Una Canción Para Cada Ocasión</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Tu vida tiene una banda sonora. Nosotros te ayudamos a componerla.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {useCases.map((useCase, index) => {
-              const Icon = useCase.icon;
-              return (
-                <Link key={index} href={useCase.link} passHref legacyBehavior>
-                    <a className="block transform transition-transform duration-300 hover:-translate-y-2 group h-full">
-                        <Card className="bg-secondary/50 border-border/50 text-center p-6 flex flex-col items-center h-full">
-                            <div className="mb-4 bg-background p-3 rounded-full border-2 border-accent-gold/30">
-                                <Icon className="w-10 h-10 text-accent-gold" />
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="relative h-full min-h-[500px] rounded-lg overflow-hidden shadow-2xl">
+                    <Image src="https://placehold.co/600x800.png" alt="Mujer feliz recibiendo un regalo musical" fill={true} style={{objectFit: 'cover'}} data-ai-hint="woman gift music" />
+                </div>
+                <div>
+                    <h2 className="font-headline text-4xl font-bold mb-4">
+                        El detalle perfecto para cada ocasión
+                    </h2>
+                    <p className="text-lg text-muted-foreground mb-8">
+                        Convierte tus sentimientos en un recuerdo único 🎶
+                    </p>
+                    <div className="space-y-6">
+                        {occasions.map((item) => (
+                            <div key={item.title} className="flex items-start gap-4">
+                                <div className="text-2xl pt-1">{item.emoji}</div>
+                                <div>
+                                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                                    <p className="text-muted-foreground">{item.description}</p>
+                                </div>
                             </div>
-                            <h3 className="font-headline text-2xl font-semibold">{useCase.title}</h3>
-                            <p className="mt-2 text-muted-foreground flex-grow">{useCase.description}</p>
-                            <p className="mt-4 font-semibold text-accent-gold group-hover:underline">
-                                Crear ahora <span aria-hidden="true">&rarr;</span>
-                            </p>
-                        </Card>
-                    </a>
-                </Link>
-              );
-            })}
-          </div>
+                        ))}
+                    </div>
+                    <Separator className="my-8 bg-border/50" />
+                    <div className="space-y-6">
+                        {guarantees.map((item) => (
+                            <div key={item.title} className="flex items-start gap-4">
+                                <div className="text-2xl pt-1">{item.emoji}</div>
+                                <div>
+                                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                                    <p className="text-muted-foreground">{item.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
       </section>
 

@@ -42,12 +42,18 @@ const songCreationSchema = z.object({
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
   styleVoice: z.string().optional(),
-  deliveryTime: z.enum(["1h", "3h", "6h"], { required_error: "Debes seleccionar un tiempo de entrega." }),
+  deliveryTime: z.enum(["4h", "2h", "30m"], { required_error: "Debes seleccionar un tiempo de entrega." }),
   famousCollaboration: z.boolean().default(false),
 });
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
+
+const deliveryOptions = [
+  { value: "4h", label: "Estándar", time: "4 hrs", price: "$" },
+  { value: "2h", label: "Rápida", time: "2 hrs", price: "$$" },
+  { value: "30m", label: "Express", time: "30 min", price: "$$$" },
+];
 
 export function SongCreationForm() {
   const searchParams = useSearchParams();
@@ -72,7 +78,7 @@ export function SongCreationForm() {
       keywords: "",
       referenceSong: "",
       styleVoice: "",
-      deliveryTime: "3h",
+      deliveryTime: "2h",
       famousCollaboration: false,
     },
   });
@@ -213,9 +219,35 @@ export function SongCreationForm() {
             </AccordionItem>
         </Accordion>
 
-        <FormField control={form.control} name="deliveryTime" render={({ field }) => (
-            <FormItem className="space-y-3"><FormLabel className="font-headline text-lg">Velocidad de Entrega</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">{["6h", "3h", "1h"].map(time => (<FormItem key={time} className="flex-1"><FormControl><RadioGroupItem value={time} id={time} className="sr-only peer" /><Label htmlFor={time} className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"><span className="font-bold text-lg">{time}</span><span className="text-sm text-muted-foreground">{time === '6h' ? '$' : time === '3h' ? '$$' : '$$$'}</span></Label></FormControl></FormItem>))}</RadioGroup></FormControl><FormMessage /></FormItem>
-        )}/>
+        <FormField
+          control={form.control}
+          name="deliveryTime"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel className="font-headline text-lg">Velocidad de Entrega</FormLabel>
+              <FormControl>
+                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">
+                  {deliveryOptions.map(option => (
+                    <FormItem key={option.value} className="flex-1">
+                      <FormControl>
+                        <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
+                        <Label
+                          htmlFor={option.value}
+                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center"
+                        >
+                          <span className="font-bold text-lg">{option.label}</span>
+                          <span className="text-sm font-medium">{option.time}</span>
+                          <span className="text-sm text-amber-500 font-bold mt-1">{option.price}</span>
+                        </Label>
+                      </FormControl>
+                    </FormItem>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <div className="flex items-center space-x-2">
             <Dialog>
