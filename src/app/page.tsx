@@ -1,9 +1,13 @@
+
+"use client";
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
+import { useEffect, useState } from 'react';
 
 const processSteps = [
   {
@@ -137,8 +141,29 @@ const testimonials = [
   },
 ];
 
+const inspiringPhrases = [
+  "Creamos canciones únicas, desde baladas emotivas hasta corridos con fuerza.",
+  "El regalo perfecto para un aniversario inolvidable.",
+  "La banda sonora única para tu historia de amor.",
+  "Un corrido legendario que narre tu legado y tus hazañas.",
+  "La balada que siempre quisiste dedicar, ahora es posible.",
+  "Convierte esa anécdota especial en un éxito que todos recordarán.",
+  "El himno perfecto para celebrar una gran amistad.",
+  "Transforma tus momentos más importantes en música inolvidable."
+];
+
 
 export default function Home() {
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPhraseIndex((prevIndex) => (prevIndex + 1) % inspiringPhrases.length);
+    }, 4000); // Change phrase every 4 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex flex-col text-foreground bg-background">
       {/* Hero Section */}
@@ -156,8 +181,11 @@ export default function Home() {
           <h1 className="font-headline text-5xl md:text-7xl font-bold mb-4 animate-fade-in-down">
             Tu Historia Hecha Canción
           </h1>
-          <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in-up">
-            Creamos canciones únicas y personalizadas, desde baladas emotivas hasta corridos con fuerza. Transforma tus momentos en música inolvidable.
+          <p
+            key={currentPhraseIndex}
+            className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in-up"
+          >
+            {inspiringPhrases[currentPhraseIndex]}
           </p>
           <Link href="/formularios" passHref>
             <Button size="lg" className="bg-accent-gold text-accent-foreground font-bold hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-lg animate-fade-in">
