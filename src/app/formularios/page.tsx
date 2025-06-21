@@ -23,11 +23,11 @@ export default function FormulariosPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/test-pago?type=emotional" passHref>
-              <Button size="lg" className="bg-emotional-pink text-primary-foreground hover:bg-emotional-pink/90">
+            <Button asChild size="lg" className="bg-emotional-pink text-primary-foreground hover:bg-emotional-pink/90">
+              <Link href="/test-pago?type=emotional">
                 Crear Canción Emocional
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
 
@@ -40,11 +40,11 @@ export default function FormulariosPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/test-pago?type=corrido" passHref>
-              <Button size="lg" className="bg-corridos-red text-white hover:bg-corridos-red/90">
+            <Button asChild size="lg" className="bg-corridos-red text-white hover:bg-corridos-red/90">
+              <Link href="/test-pago?type=corrido">
                 Crear Corrido
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
