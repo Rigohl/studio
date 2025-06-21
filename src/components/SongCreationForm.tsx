@@ -42,7 +42,7 @@ const songCreationSchema = z.object({
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
   styleVoice: z.string().optional(),
-  deliveryTime: z.enum(["4h", "2h", "30m"], { required_error: "Debes seleccionar un tiempo de entrega." }),
+  deliveryTime: z.enum(["2h", "1h", "30m"], { required_error: "Debes seleccionar un tiempo de entrega." }),
   famousCollaboration: z.boolean().default(false),
 });
 
@@ -50,8 +50,8 @@ type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
 
 const deliveryOptions = [
-  { value: "4h", label: "Estándar", time: "4 hrs", price: "$" },
-  { value: "2h", label: "Rápida", time: "2 hrs", price: "$$" },
+  { value: "2h", label: "Estándar", time: "2 hrs", price: "$" },
+  { value: "1h", label: "Rápida", time: "1 hr", price: "$$" },
   { value: "30m", label: "Express", time: "30 min", price: "$$$" },
 ];
 
@@ -78,7 +78,7 @@ export function SongCreationForm() {
       keywords: "",
       referenceSong: "",
       styleVoice: "",
-      deliveryTime: "2h",
+      deliveryTime: "1h",
       famousCollaboration: false,
     },
   });

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, FileText, Send, CreditCard, Star, Quote } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 
@@ -278,6 +278,101 @@ export default function Home() {
             <Link href="/ejemplos" passHref>
                 <Button variant="outline" size="lg">Ver más ejemplos</Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="precios" className="py-20 sm:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="font-headline text-4xl font-bold">Planes Para Cada Urgencia</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Elige la velocidad que tu inspiración necesita. Misma calidad, diferente ritmo.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+            {/* Standard Plan */}
+            <Card className="flex flex-col">
+              <CardHeader className="text-center pt-8">
+                <CardTitle className="font-headline text-3xl">Estándar</CardTitle>
+                <CardDescription className="text-lg font-bold text-primary">2 horas</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow space-y-4">
+                 <p className="text-center text-muted-foreground min-h-[48px]">
+                    Perfecto para planear con calma tu sorpresa.
+                 </p>
+                 <Separator />
+                <ul className="space-y-2 text-muted-foreground pt-4">
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex-col gap-4">
+                <p className="font-bold text-4xl">$XX.XX</p>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/formularios">Empezar</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Fast Plan - Recommended */}
+            <Card className="flex flex-col border-2 border-accent-gold shadow-2xl relative lg:-translate-y-4">
+              <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                  <div className="bg-accent-gold text-accent-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
+                      Recomendado
+                  </div>
+              </div>
+              <CardHeader className="text-center pt-8">
+                <CardTitle className="font-headline text-3xl">Rápida</CardTitle>
+                <CardDescription className="text-lg font-bold text-accent-gold">1 hora</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow space-y-4">
+                <p className="text-center text-muted-foreground min-h-[48px]">
+                    Ideal para sorpresas el mismo día.
+                </p>
+                <Separator />
+                <ul className="space-y-2 text-muted-foreground pt-4">
+                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                   <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Entrega prioritaria</span></li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex-col gap-4">
+                <p className="font-bold text-4xl">$XX.XX</p>
+                <Button asChild className="w-full bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 shadow-lg">
+                  <Link href="/formularios">Empezar ahora</Link>
+                </Button>
+              </CardFooter>
+            </Card>
+
+            {/* Express Plan */}
+            <Card className="flex flex-col">
+              <CardHeader className="text-center pt-8">
+                <CardTitle className="font-headline text-3xl">Express</CardTitle>
+                <CardDescription className="text-lg font-bold text-primary">30 minutos</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow space-y-4">
+                <p className="text-center text-muted-foreground min-h-[48px]">
+                    Para regalos de último minuto. Máxima velocidad.
+                </p>
+                 <Separator />
+                <ul className="space-y-2 text-muted-foreground pt-4">
+                 <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Canción completa MP3</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Letra personalizada</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Calidad profesional</span></li>
+                  <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-500" /><span>Entrega ultra-rápida</span></li>
+                </ul>
+              </CardContent>
+              <CardFooter className="flex-col gap-4">
+                 <p className="font-bold text-4xl">$XX.XX</p>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/formularios">Empezar</Link>
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </section>
