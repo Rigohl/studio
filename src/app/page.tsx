@@ -92,6 +92,60 @@ const testimonials = [
     avatar: "https://placehold.co/100x100.png",
     avatarHint: "smiling woman"
   },
+  {
+    name: "Gerardo 'El Fuerte'",
+    quote: "El corrido narra la historia de mi negocio desde cero. Suena con poder y respeto. Justo lo que quería para contar mi legado. ¡Fierro!",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "serious man portrait"
+  },
+  {
+    name: "Marketing Digital Co.",
+    quote: "El jingle que crearon para nuestra startup es increíblemente pegadizo. Nuestras métricas de marca han subido. ¡Gran inversión!",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "company logo"
+  },
+  {
+    name: "Familia Pérez",
+    quote: "Le regalamos una canción a nuestra hija por su graduación, contando sus logros. Fue el momento más emotivo de la fiesta. Invaluable.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "happy family"
+  },
+  {
+    name: "Familia Mendoza",
+    quote: "Encargamos un corrido para mi padre, contando la historia de cómo sacó adelante a la familia. Se le salieron las lágrimas. Un trabajo de primera.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "older man smiling"
+  },
+  {
+    name: "Ricardo S.",
+    quote: "No sabía cómo pedir perdón, y una canción fue la mejor manera de expresar mis sentimientos. Gracias por ayudarme a reconectar.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "thoughtful man"
+  },
+  {
+    name: "J.L. Guerrero",
+    quote: "Necesitaba un corrido que sonara a los de antes, con una buena historia. Dieron en el clavo. La instrumentación y la voz, impecables.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "man cowboy hat"
+  },
+  {
+    name: "Elena R.",
+    quote: "Pedí una canción para recordar a mi abuelo. Usaron las historias que les conté y crearon un tesoro que guardaré para siempre.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "woman looking distance"
+  },
+  {
+    name: "Los Novios Felices",
+    quote: "Nuestra canción personalizada fue el primer baile en nuestra boda. No hubo un ojo seco en el lugar. Mágico es poco decir.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "couple dancing"
+  },
+  {
+    name: "Mateo B.",
+    quote: "No necesitaba una ocasión especial, solo quería decirle a mi pareja lo mucho que la quiero. La canción fue un detalle espectacular.",
+    avatar: "https://placehold.co/100x100.png",
+    avatarHint: "man smiling"
+  },
 ];
 
 
@@ -231,7 +285,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 sm:py-24 bg-secondary/30">
+      <section id="testimonials" className="py-20 sm:py-24 bg-secondary/30 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="font-headline text-4xl font-bold">Lo que Dicen Nuestros Clientes</h2>
@@ -239,38 +293,44 @@ export default function Home() {
               Historias reales, emociones reales.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        </div>
+        <div className="relative">
+          <div className="flex gap-8 overflow-x-auto pb-8 px-4 sm:px-6 lg:px-8 snap-x snap-mandatory scrollbar-hide">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-background/80 border-border/50 flex flex-col justify-between">
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                     <Image
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                        data-ai-hint={testimonial.avatarHint}
-                      />
-                      <div>
-                        <p className="font-semibold">{testimonial.name}</p>
-                        <div className="flex text-accent-gold">
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
-                            <Star className="w-4 h-4 fill-current" />
+              <div key={index} className="snap-start flex-shrink-0 w-[90vw] sm:w-[380px]">
+                <Card className="bg-background/80 border-border/50 flex flex-col justify-between h-full min-h-[240px]">
+                  <CardHeader>
+                    <div className="flex items-center gap-4">
+                       <Image
+                          src={testimonial.avatar}
+                          alt={testimonial.name}
+                          width={48}
+                          height={48}
+                          className="rounded-full"
+                          data-ai-hint={testimonial.avatarHint}
+                        />
+                        <div>
+                          <p className="font-semibold">{testimonial.name}</p>
+                          <div className="flex text-accent-gold">
+                              <Star className="w-4 h-4 fill-current" />
+                              <Star className="w-4 h-4 fill-current" />
+                              <Star className="w-4 h-4 fill-current" />
+                              <Star className="w-4 h-4 fill-current" />
+                              <Star className="w-4 h-4 fill-current" />
+                          </div>
                         </div>
-                      </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                    <Quote className="w-8 h-8 text-muted-foreground/50 mb-2" />
-                    <p className="text-muted-foreground">{testimonial.quote}</p>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                      <Quote className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                      <p className="text-muted-foreground italic">"{testimonial.quote}"</p>
+                  </CardContent>
+                </Card>
+              </div>
             ))}
           </div>
+          <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-secondary/30 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-secondary/30 to-transparent pointer-events-none"></div>
         </div>
       </section>
 
