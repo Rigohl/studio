@@ -293,7 +293,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
             {/* Plan Creador */}
-            <Card className="flex flex-col">
+            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl lg:hover:-translate-y-4">
               <CardHeader className="text-center pt-8">
                 <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
                 <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
@@ -316,7 +316,7 @@ export default function Home() {
             </Card>
 
             {/* Plan Artista - Recommended */}
-            <Card className="flex flex-col border-2 border-accent-gold shadow-2xl relative lg:-translate-y-4">
+            <Card className="flex flex-col border-2 border-transparent relative transition-all duration-300 hover:border-accent-gold hover:shadow-2xl lg:hover:-translate-y-4">
               <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                   <div className="bg-accent-gold text-accent-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
                       Recomendado
@@ -345,7 +345,7 @@ export default function Home() {
             </Card>
 
             {/* Plan Maestro */}
-            <Card className="flex flex-col">
+            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl lg:hover:-translate-y-4">
               <CardHeader className="text-center pt-8">
                 <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
                 <CardDescription className="text-lg">La experiencia completa.</CardDescription>
