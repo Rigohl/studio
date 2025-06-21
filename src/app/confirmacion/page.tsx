@@ -28,7 +28,7 @@ export default function ConfirmacionPage() {
                <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total:</span><span>$XX.XX</span></div>
             </div>
             
-            <Button size="lg" className="w-full text-lg font-bold bg-accent-gold text-corridos-black hover:bg-accent-gold/90">
+            <Button size="lg" className="w-full text-lg font-bold bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
               Pagar con Stripe
             </Button>
             <p className="text-xs text-muted-foreground text-center">

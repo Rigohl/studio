@@ -62,7 +62,7 @@ export default function EjemplosPage() {
               <div className="flex-1">
                 <CardTitle className="font-headline text-2xl">{example.title}</CardTitle>
                 <CardDescription className="mt-1">{example.description}</CardDescription>
-                <span className={`mt-2 inline-block px-2 py-1 text-xs rounded-full ${example.type === 'Emocional' ? 'bg-emotional-pink text-corridos-black' : 'bg-corridos-red text-white'}`}>
+                <span className={`mt-2 inline-block px-2 py-1 text-xs rounded-full ${example.type === 'Emocional' ? 'bg-emotional-pink text-primary-foreground' : 'bg-corridos-red text-white'}`}>
                   {example.type}
                 </span>
               </div>

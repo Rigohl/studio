@@ -27,6 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Wand2, Star } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
+import { Label } from "../ui/label";
 
 const songCreationSchema = z.object({
   songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
@@ -119,19 +120,19 @@ export function SongCreationForm() {
             <h2 className="font-headline text-4xl font-bold">¡Tu Canción Está Lista!</h2>
             <p className="text-muted-foreground mt-2">Escucha el resultado y prepárate para compartirla.</p>
         </div>
-        <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
+        <div className="bg-secondary/50 p-6 rounded-lg">
             <h3 className="font-headline text-2xl mb-4">Audio</h3>
             <audio controls src={result.audio} className="w-full">
                 Tu navegador no soporta el audio.
             </audio>
         </div>
-        <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg">
+        <div className="bg-secondary/50 p-6 rounded-lg">
             <h3 className="font-headline text-2xl mb-4">Letra</h3>
             <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed">{result.lyrics}</pre>
         </div>
         <div className="text-center space-y-4">
             <Link href="/confirmacion" passHref>
-                <Button size="lg" className="bg-accent-gold text-corridos-black hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
+                <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
             </Link>
             <Button variant="outline" onClick={() => { setResult(null); form.reset(); }}>Crear otra canción</Button>
         </div>
@@ -230,7 +231,7 @@ export function SongCreationForm() {
             </Dialog>
         </div>
 
-        <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-corridos-black hover:bg-accent-gold/90">
+        <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
           <Wand2 className="mr-2 h-5 w-5" />
           Generar mi Canción
         </Button>

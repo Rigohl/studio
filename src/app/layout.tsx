@@ -31,13 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className={cn("font-body antialiased flex flex-col min-h-screen", "bg-white")}>
+      <body className={cn("font-body antialiased flex flex-col min-h-screen")}>
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />

@@ -24,18 +24,18 @@ export default function FormulariosPage() {
           </CardHeader>
           <CardContent>
             <Link href="/test-pago?type=emotional" passHref>
-              <Button size="lg" className="bg-emotional-pink text-corridos-black hover:bg-emotional-pink/90">
+              <Button size="lg" className="bg-emotional-pink text-primary-foreground hover:bg-emotional-pink/90">
                 Crear Canción Emocional
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-2 border-corridos-red/50 bg-corridos-black text-white">
+        <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-2 border-corridos-red/50 bg-secondary text-foreground">
           <CardHeader>
             <Skull className="mx-auto h-12 w-12 text-corridos-red mb-4" />
             <CardTitle className="font-headline text-3xl">Corridos Bélicos</CardTitle>
-            <CardDescription className="pt-2 text-gray-300">
+            <CardDescription className="pt-2 text-muted-foreground">
               Para narrar hazañas, celebrar la lealtad y contar historias de poder con el ritmo y la fuerza de los corridos tumbados. Tu vida, tu corrido.
             </CardDescription>
           </CardHeader>
