@@ -7,7 +7,7 @@ import { Menu, Music } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetClose, SheetTrigger } from "./ui/sheet";
-import { Separator } from "./ui/separator";
+import { Separator } from "@/components/ui/separator";
 
 export function Header() {
   const pathname = usePathname();
