@@ -92,7 +92,7 @@ const revisionPrompt = ai.definePrompt({
     safetySettings: [
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-        threshold: 'BLOCK_NONE',
+        threshold: 'BLOCK_ONLY_HIGH',
       },
       {
         category: 'HARM_CATEGORY_HATE_SPEECH',
