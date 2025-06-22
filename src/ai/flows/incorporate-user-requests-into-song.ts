@@ -36,6 +36,7 @@ const SongDetailsSchema = z.object({
   ending: z.string().optional(),
   plan: z.string(),
   famousCollaboration: z.boolean().optional(),
+  inspirationalArtist: z.string().optional(),
 });
 
 
@@ -95,6 +96,9 @@ Here is the original song context:
 - Genre: {{songDetails.genre}}
 - Dedicated to: {{songDetails.dedicatedTo}} from {{songDetails.requester}}
 - Story: {{{songDetails.story}}}
+{{#if songDetails.inspirationalArtist}}
+- Inspirational Style: {{{songDetails.inspirationalArtist}}}
+{{/if}}
 
 Here is the current draft of the lyrics:
 --- LYRICS DRAFT ---

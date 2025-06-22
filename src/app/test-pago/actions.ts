@@ -29,6 +29,7 @@ const songCreationSchema = z.object({
   plan: z.string(),
   famousCollaboration: z.boolean().optional(),
   styleVoice: z.string().optional(),
+  inspirationalArtist: z.string().optional(),
 });
 
 
@@ -56,6 +57,7 @@ export async function createSongAction(data: z.infer<typeof songCreationSchema>)
       tempo: validatedData.tempo,
       structure: validatedData.structure,
       ending: validatedData.ending,
+      inspirationalArtist: validatedData.inspirationalArtist,
     };
 
     const result = await generateSongLyricsAndAudio(flowInput);

@@ -33,6 +33,7 @@ const GenerateSongLyricsAndAudioInputSchema = z.object({
   tempo: z.string().optional().describe('The desired tempo for the song (e.g., slow, medium, fast).'),
   structure: z.string().optional().describe('The desired structure for the song (e.g., verse-chorus, narrative).'),
   ending: z.string().optional().describe('The desired ending for the song (e.g., fade out, abrupt end).'),
+  inspirationalArtist: z.string().optional().describe('An artist to inspire the instrumental and mood of the song, not the voice.'),
 });
 
 export type GenerateSongLyricsAndAudioInput = z.infer<typeof GenerateSongLyricsAndAudioInputSchema>;
@@ -78,6 +79,9 @@ Parámetros de composición avanzada:
 {{/if}}
 {{#if ending}}
 - El final de la canción debe ser: {{{ending}}}.
+{{/if}}
+{{#if inspirationalArtist}}
+- Estilo Inspiracional: La instrumentación y el ambiente general de la canción deben inspirarse fuertemente en el estilo de {{{inspirationalArtist}}}. IMPORTANTE: No imites la voz, solo el estilo musical, los arreglos y la producción.
 {{/if}}
 
 Inspiración y Estilo:

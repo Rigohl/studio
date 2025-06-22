@@ -55,8 +55,7 @@ const songCreationSchema = z.object({
   structure: z.string().optional(),
   ending: z.string().optional(),
   plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
-  famousCollaboration: z.boolean().default(false),
-  styleVoice: z.string().optional(),
+  inspirationalArtist: z.string().optional(),
 });
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
@@ -74,12 +73,12 @@ const planOptions = {
     emotional: [
         { value: "creator", label: "Creador", price: "$199", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
         { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
-        { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
+        { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados", "Inspiración en Estilo de Artista"] },
     ],
     corrido: [
         { value: "creator", label: "El Relato", price: "$249", features: ["Corrido completo (Bélico, etc.)", "Letra que narra tu hazaña", "1 Revisión de la letra", "Calidad profesional MP3"] },
         { value: "artist", label: "La Leyenda", price: "$499", features: ["Todo lo de El Relato +", "2 Revisiones de letra y arreglos", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
-        { value: "master", label: "El Patriarca", price: "$999", features: ["Todo lo de La Leyenda +", "3 Revisiones completas", "Audio WAV (Calidad Estudio)", "Pista instrumental para tus eventos", "Géneros y Fusiones personalizadas"] },
+        { value: "master", label: "El Patriarca", price: "$999", features: ["Todo lo de La Leyenda +", "3 Revisiones completas", "Audio WAV (Calidad Estudio)", "Pista instrumental para tus eventos", "Géneros y Fusiones personalizadas", "Inspiración en Estilo de Artista"] },
     ]
 };
 
@@ -209,8 +208,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       tempo: "",
       structure: "",
       ending: "",
-      famousCollaboration: false,
-      styleVoice: "",
+      inspirationalArtist: "",
     },
   });
 
@@ -546,14 +544,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <CardContent className="p-8">
             <div className="space-y-8 text-center animate-fade-in">
                 <Star className="mx-auto h-12 w-12 text-accent-gold" />
-                <h2 className="font-headline text-4xl font-bold">Dale un Estilo Único a tu Canción</h2>
+                <h2 className="font-headline text-4xl font-bold">Añade una Voz de Famoso (Opcional)</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo avanzado para inspirarnos en el <span className="font-bold text-foreground">estilo vocal e instrumental</span> de un artista famoso, dándole un toque aún más distintivo y profesional.
+                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo avanzado para inspirarnos en el <span className="font-bold text-foreground">estilo vocal</span> de un artista famoso, dándole un toque aún más distintivo y profesional.
                 </p>
                 
                 <Card className="max-w-lg mx-auto text-left">
                     <CardHeader>
-                        <CardTitle>Elige un Estilo de Referencia</CardTitle>
+                        <CardTitle>Elige un Estilo de Voz</CardTitle>
                         <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -569,7 +567,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             value={collaborationChoice}
                             onChange={(e) => setCollaborationChoice(e.target.value)}
                         />
-                         <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal e instrumental del artista.</p>
+                         <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal del artista.</p>
                     </CardContent>
                 </Card>
 
@@ -580,7 +578,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     </Button>
                     <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice || "Estilo Famoso")}>
                         <Mic2 className="mr-2 h-5 w-5" />
-                        Sí, agregar Estilo Famoso por $299
+                        Sí, agregar Estilo de Voz por $299
                     </Button>
                 </div>
             </div>
@@ -776,8 +774,18 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     )}/>
                                </div>
 
-                               <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t", plan !== 'master' && 'hidden')}>
-                                   <p className="md:col-span-2 text-sm text-muted-foreground -mb-4">Exclusivo Plan Maestro</p>
+                               <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t", plan !== 'master' && 'hidden')}>
+                                   <p className="md:col-span-3 text-sm text-muted-foreground -mb-4">Exclusivo Plan Maestro</p>
+                                    <FormField control={form.control} name="inspirationalArtist" render={({ field }) => (
+                                      <FormItem>
+                                          <FormLabel className="flex items-center gap-2">
+                                              Estilo Inspiracional
+                                              <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista como referencia. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
+                                          </FormLabel>
+                                          <FormControl><Input placeholder="Ej: Bad Bunny, Ed Sheeran, Calibre 50..." {...field} disabled={plan !== 'master'} /></FormControl>
+                                          <FormMessage />
+                                      </FormItem>
+                                    )}/>
                                     <FormField control={form.control} name="structure" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
@@ -840,7 +848,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
                                         {option.features.map((feature, idx) => (
                                             <li key={idx} className="flex items-start gap-2">
-                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') || feature.includes('Revisiones') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Pista') ? <Disc className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
+                                                {feature.includes('Personalizados') || feature.includes('Fusiones') || feature.includes('Inspiración') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') || feature.includes('Revisiones') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Pista') ? <Disc className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
                                                 <span>{feature}</span>
                                             </li>
                                         ))}
