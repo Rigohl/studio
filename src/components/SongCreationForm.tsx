@@ -169,6 +169,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
   const [revisionsRemaining, setRevisionsRemaining] = useState(0);
   const [revisionRequest, setRevisionRequest] = useState("");
+  const [isRevising, setIsRevising] = useState(false);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
   const [genreSearch, setGenreSearch] = useState("");
@@ -319,8 +320,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const handleRevisionSubmit = async () => {
     if (!formData || !result || !revisionRequest) return;
     
-    setLoading(true);
-    setFormStep("loading");
+    setIsRevising(true);
 
     try {
       const res = await reviseSongAction({
@@ -336,7 +336,6 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         setResult(res);
         setRevisionsRemaining(prev => prev - 1);
         setRevisionRequest("");
-        setFormStep("review");
         toast({ title: "¡Revisión completada!", description: "Aquí tienes la nueva versión de tu canción." });
       } else {
         throw new Error(res.error || "La respuesta del servidor no fue la esperada.");
@@ -344,9 +343,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     } catch (error) {
       console.error(error);
       toast({ title: "Error al revisar la canción", description: String(error), variant: "destructive" });
-      setFormStep("review");
     } finally {
-      setLoading(false);
+      setIsRevising(false);
     }
   };
 
@@ -422,7 +420,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             onChange={(e) => setRevisionRequest(e.target.value)}
                             rows={4}
                         />
-                        <Button onClick={handleRevisionSubmit} disabled={!revisionRequest}>Enviar Revisión</Button>
+                        <Button onClick={handleRevisionSubmit} disabled={!revisionRequest || isRevising}>
+                            {isRevising && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Enviar Revisión
+                        </Button>
                     </div>
                 ) : (
                     <div className="text-center p-4 bg-yellow-900/20 rounded-md">
@@ -833,8 +834,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                   <Label
                                     htmlFor={option.value}
                                     className={cn(
-                                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
-                                        option.isRecommended && (songType === 'emotional' ? "peer-data-[state=unchecked]:border-primary/50" : "peer-data-[state=unchecked]:border-corridos-red/50")
+                                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 cursor-pointer text-center relative h-full transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:-translate-y-1 hover:shadow-xl",
+                                        "peer-data-[state=checked]:border-primary"
                                     )}
                                   >
                                     {option.isRecommended && <span className={cn("text-xs text-primary-foreground px-2 py-0.5 rounded-full absolute -top-2.5", songType === 'emotional' ? 'bg-primary' : 'bg-corridos-red text-white')}>Recomendado</span>}

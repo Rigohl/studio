@@ -187,7 +187,7 @@ const PlanCard = ({ plan, songType }: { plan: Plan; songType: 'emotional' | 'cor
     return (
         <Card className={cn(
             "flex flex-col border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
-            isRecommended ? `relative shadow-xl ${borderColor}/80 hover:${borderColor}` : "border-transparent"
+            isRecommended ? `relative shadow-xl border-border hover:${borderColor}` : "border-transparent hover:border-accent-gold/50"
         )}>
             {isRecommended && (
                 <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
