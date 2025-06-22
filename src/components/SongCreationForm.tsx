@@ -25,12 +25,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, Image as ImageIcon, Disc } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, Image as ImageIcon, Disc, Info } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 const songCreationSchema = z.object({
@@ -60,11 +61,19 @@ type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "result";
 type Plan = "creator" | "artist" | "master";
 
-const planOptions = [
-    { value: "creator", label: "Creador", price: "$249", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
-    { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición (Instrumentos, Tempo, Mood)", "Carátula de Álbum Digital"] },
-    { value: "master", label: "Maestro", price: "$999", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Control Total (Estructura, Final)", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
-];
+const planOptions = {
+    emotional: [
+        { value: "creator", label: "Creador", price: "$249", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
+        { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum Digital"] },
+        { value: "master", label: "Maestro", price: "$999", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
+    ],
+    corrido: [
+        { value: "creator", label: "El Relato", price: "$249", features: ["Corrido completo (Bélico, etc.)", "Letra que narra tu hazaña", "1 Revisión de la letra", "Calidad profesional MP3"] },
+        { value: "artist", label: "La Leyenda", price: "$499", features: ["Todo lo de El Relato +", "2 Revisiones de letra y arreglos", "Control de Composición Avanzado", "Carátula de Álbum Digital"] },
+        { value: "master", label: "El Patriarca", price: "$999", features: ["Todo lo de La Leyenda +", "3 Revisiones completas", "Audio WAV (Calidad Estudio)", "Pista instrumental para tus eventos", "Géneros y Fusiones personalizadas"] },
+    ]
+};
+
 
 const famousArtistSuggestions = {
     emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
@@ -85,6 +94,20 @@ const experienceThemes = {
         storyLabel: "Vierte aquí tus recuerdos y emociones",
         storyPlaceholder: "Describe vuestra historia, momentos especiales, anécdotas, lo que sientes...",
         genrePlaceholder: "Ej: Balada Pop, Acústico, R&B...",
+        moods: [
+            { value: "melancolico", label: "Melancólico" },
+            { value: "alegre", label: "Alegre" },
+            { value: "apasionado", label: "Apasionado" },
+            { value: "sonador", label: "Soñador" },
+            { value: "inspirador", label: "Inspirador" },
+        ],
+        tooltips: {
+            instrumentation: "Describe los instrumentos que imaginas. Ej: 'Piano y cuerdas' para una balada, 'Guitarra acústica y un beat suave' para algo pop.",
+            mood: "Define la emoción principal. Esto guiará la melodía y la armonía para evocar el sentimiento correcto.",
+            tempo: "Marca el pulso de tu canción. 'Lento' para una balada introspectiva, 'Medio' para un ritmo pop, o 'Rápido' para una canción enérgica.",
+            structure: "Define el viaje musical. 'Clásica' (verso-coro) es ideal para un estribillo pegadizo. 'Narrativa' es perfecta para contar una historia cronológica.",
+            ending: "Decide el adiós de la canción. 'Abrupto' para un corte dramático, 'Fade out' para un final suave, o 'Épico instrumental' para un clímax emocional.",
+        }
     },
     corrido: {
         Icon: Skull,
@@ -99,6 +122,20 @@ const experienceThemes = {
         storyLabel: "Forja la leyenda. ¿Cuál es la hazaña?",
         storyPlaceholder: "Narra la historia de superación, lealtad, poder o el evento clave que define al protagonista.",
         genrePlaceholder: "Ej: Corrido Tumbado, Sierreño...",
+        moods: [
+            { value: "desafiante", label: "Desafiante" },
+            { value: "triunfal", label: "Triunfal" },
+            { value: "nostalgico", label: "Nostálgico" },
+            { value: "leal", label: "Leal" },
+            { value: "de-respeto", label: "De Respeto" },
+        ],
+        tooltips: {
+            instrumentation: "Describe los instrumentos clave para el sonido del corrido. Ej: 'Acordeón, bajo sexto, tololoche'.",
+            mood: "Elige el tono de la historia. Esto define si el corrido sonará como una advertencia, una celebración o un recuerdo.",
+            tempo: "Define el ritmo del corrido. 'Lento' para un tono narrativo, 'Medio' para un paso firme, o 'Rápido' para una sensación de acción.",
+            structure: "Define cómo se contará la hazaña. 'Clásica' (verso-coro) para un mensaje central. 'Narrativa' cuenta la historia de principio a fin, como una leyenda.",
+            ending: "Elige cómo termina la leyenda. 'Abrupto' para un final impactante, 'Fade out' para un cierre que perdura, o 'Épico instrumental' para un remate de poder.",
+        }
     }
 };
 
@@ -120,6 +157,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
   const genres = songType === 'corrido' ? corridoGenres : emotionalGenres;
+  const currentPlanOptions = songType === 'corrido' ? planOptions.corrido : planOptions.emotional;
 
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
@@ -315,215 +353,260 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
             </CardDescription>
         </CardHeader>
         <CardContent className="p-4 sm:p-8">
-            <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
-                <FormField control={form.control} name="styleVoice" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+            <TooltipProvider>
+                <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                    <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+                    <FormField control={form.control} name="styleVoice" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
-                        <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
+                            <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="requester" render={({ field }) => (
+                            <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="nickname" render={({ field }) => (
+                            <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                        <FormField control={form.control} name="relationship" render={({ field }) => (
+                            <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+                    
+                    <FormField control={form.control} name="story" render={({ field }) => (
+                        <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
                     )}/>
-                    <FormField control={form.control} name="requester" render={({ field }) => (
-                        <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="nickname" render={({ field }) => (
-                        <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="relationship" render={({ field }) => (
-                        <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                </div>
-                
-                <FormField control={form.control} name="story" render={({ field }) => (
-                    <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
-                )}/>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                   <FormField
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <FormField
+                          control={form.control}
+                          name="genre"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel>Género Musical</FormLabel>
+                              <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      variant="outline"
+                                      role="combobox"
+                                      className={cn(
+                                        "w-full justify-between font-normal",
+                                        !field.value && "text-muted-foreground"
+                                      )}
+                                    >
+                                      {field.value
+                                        ? field.value
+                                        : "Selecciona un género..."}
+                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                  <Command
+                                    value={genreSearch}
+                                    onValueChange={setGenreSearch}
+                                    filter={(value, search) => {
+                                      if (value.toLowerCase().includes(search.toLowerCase())) return 1;
+                                      return 0;
+                                    }}
+                                  >
+                                    <CommandInput
+                                      placeholder={plan === 'master' ? "Busca o escribe un género..." : "Busca un género..."}
+                                    />
+                                    <CommandList>
+                                      <CommandEmpty>
+                                        {plan === 'master' && genreSearch.length > 0 ? (
+                                          <CommandItem
+                                            onSelect={() => {
+                                              form.setValue("genre", genreSearch);
+                                              setGenrePopoverOpen(false);
+                                              setGenreSearch("");
+                                            }}
+                                          >
+                                            <Check className="mr-2 h-4 w-4 opacity-0" />
+                                            Crear: "{genreSearch}"
+                                          </CommandItem>
+                                        ) : (
+                                          'No se encontraron resultados.'
+                                        )}
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        {genres.map((genre) => (
+                                          <CommandItem
+                                            value={genre}
+                                            key={genre}
+                                            onSelect={(currentValue) => {
+                                              form.setValue("genre", genre === field.value ? "" : genre);
+                                              setGenrePopoverOpen(false);
+                                              setGenreSearch("");
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                "mr-2 h-4 w-4",
+                                                field.value === genre ? "opacity-100" : "opacity-0"
+                                              )}
+                                            />
+                                            {genre}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                               <FormDescription>
+                                 {plan === 'master'
+                                   ? 'Puedes elegir de la lista o escribir un género personalizado.'
+                                   : 'Elige un género de la lista. Plan Maestro requerido para géneros personalizados.'}
+                               </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField control={form.control} name="voice" render={({ field }) => (
+                            <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                        )}/>
+                    </div>
+
+                    <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
+                            <AccordionTrigger className="font-headline text-lg hover:no-underline">
+                              Detalles Avanzados (Planes Artista y Maestro)
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-8 pt-4">
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <FormField control={form.control} name="instrumentation" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                Instrumentación
+                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
+                                            </FormLabel>
+                                            <FormControl><Input placeholder="Ej: Acordeón, bajo sexto, tololoche" {...field} disabled={plan === 'creator'} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="mood" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                Ambiente (Mood)
+                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
+                                            </FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent>
+                                                {theme.moods.map(mood => <SelectItem key={mood.value} value={mood.value}>{mood.label}</SelectItem>)}
+                                            </SelectContent></Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="tempo" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                Tempo
+                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
+                                            </FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="keywords" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Palabras Clave</FormLabel>
+                                            <FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                               </div>
+
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t" hidden={plan !== 'master'}>
+                                   <p className={cn("md:col-span-2 text-sm text-muted-foreground -mb-4", plan !== 'master' && 'hidden')}>Exclusivo Plan Maestro</p>
+                                    <FormField control={form.control} name="structure" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                Estructura de la Canción
+                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
+                                            </FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="ending" render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="flex items-center gap-2">
+                                                Final de la Canción
+                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
+                                            </FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                               </div>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
+                                 <FormField control={form.control} name="referenceSong" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Canción de Referencia</FormLabel>
+                                        <FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                 )}/>
+                                  <FormField control={form.control} name="includeNames" render={({ field }) => (
+                                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 h-full justify-center"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
+                                  )}/>
+                               </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+
+                    <FormField
                       control={form.control}
-                      name="genre"
+                      name="plan"
                       render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Género Musical</FormLabel>
-                          <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    "w-full justify-between font-normal",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? field.value
-                                    : "Selecciona un género..."}
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                              <Command
-                                value={genreSearch}
-                                onValueChange={setGenreSearch}
-                                filter={(value, search) => {
-                                  if (value.toLowerCase().includes(search.toLowerCase())) return 1;
-                                  return 0;
-                                }}
-                              >
-                                <CommandInput
-                                  placeholder={plan === 'master' ? "Busca o escribe un género..." : "Busca un género..."}
-                                />
-                                <CommandList>
-                                  <CommandEmpty>
-                                    {plan === 'master' && genreSearch.length > 0 ? (
-                                      <CommandItem
-                                        onSelect={() => {
-                                          form.setValue("genre", genreSearch);
-                                          setGenrePopoverOpen(false);
-                                          setGenreSearch("");
-                                        }}
-                                      >
-                                        <Check className="mr-2 h-4 w-4 opacity-0" />
-                                        Crear: "{genreSearch}"
-                                      </CommandItem>
-                                    ) : (
-                                      'No se encontraron resultados.'
+                        <FormItem className="space-y-3">
+                          <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
+                          <FormControl>
+                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {currentPlanOptions.map(option => (
+                                <FormItem key={option.value}>
+                                  <FormControl>
+                                    <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
+                                  </FormControl>
+                                  <Label
+                                    htmlFor={option.value}
+                                    className={cn(
+                                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
+                                        option.value === 'artist' && "border-accent-gold/50"
                                     )}
-                                  </CommandEmpty>
-                                  <CommandGroup>
-                                    {genres.map((genre) => (
-                                      <CommandItem
-                                        value={genre}
-                                        key={genre}
-                                        onSelect={(currentValue) => {
-                                          form.setValue("genre", genre === currentValue ? "" : currentValue);
-                                          setGenrePopoverOpen(false);
-                                          setGenreSearch("");
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            field.value === genre ? "opacity-100" : "opacity-0"
-                                          )}
-                                        />
-                                        {genre}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                           <FormDescription>
-                             {plan === 'master'
-                               ? 'Puedes elegir de la lista o escribir un género personalizado.'
-                               : 'Elige un género de la lista. Plan Maestro requerido para géneros personalizados.'}
-                           </FormDescription>
+                                  >
+                                    {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
+                                    <span className="font-bold text-lg">{option.label}</span>
+                                    <span className="text-2xl text-foreground font-bold my-2">{option.price}</span>
+                                    <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
+                                        {option.features.map(feature => (
+                                            <li key={feature} className="flex items-start gap-2">
+                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                  </Label>
+                                </FormItem>
+                              ))}
+                            </RadioGroup>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <FormField control={form.control} name="voice" render={({ field }) => (
-                        <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                    )}/>
-                </div>
-
-                <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
-                        <AccordionTrigger className="font-headline text-lg hover:no-underline">
-                          Detalles Avanzados (Planes Artista y Maestro)
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-8 pt-4">
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <FormField control={form.control} name="instrumentation" render={({ field }) => (
-                                    <FormItem><FormLabel>Instrumentación</FormLabel><FormControl><Input placeholder="Ej: Acordeón, bajo sexto, tololoche" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="mood" render={({ field }) => (
-                                    <FormItem><FormLabel>Ambiente (Mood)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent><SelectItem value="nostalgico">Nostálgico</SelectItem><SelectItem value="agresivo">Agresivo</SelectItem><SelectItem value="festivo">Festivo</SelectItem><SelectItem value="reflexivo">Reflexivo</SelectItem><SelectItem value="epico">Épico</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="tempo" render={({ field }) => (
-                                    <FormItem><FormLabel>Tempo</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="keywords" render={({ field }) => (
-                                    <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                           </div>
-
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t" hidden={plan !== 'master'}>
-                               <p className={cn("md:col-span-2 text-sm text-muted-foreground -mb-4", plan !== 'master' && 'hidden')}>Exclusivo Plan Maestro</p>
-                                <FormField control={form.control} name="structure" render={({ field }) => (
-                                    <FormItem><FormLabel>Estructura de la Canción</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="ending" render={({ field }) => (
-                                    <FormItem><FormLabel>Final de la Canción</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                                )}/>
-                           </div>
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
-                             <FormField control={form.control} name="referenceSong" render={({ field }) => (
-                                <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl><FormMessage /></FormItem>
-                             )}/>
-                              <FormField control={form.control} name="includeNames" render={({ field }) => (
-                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 h-full justify-center"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
-                              )}/>
-                           </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-
-                <FormField
-                  control={form.control}
-                  name="plan"
-                  render={({ field }) => (
-                    <FormItem className="space-y-3">
-                      <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
-                      <FormControl>
-                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {planOptions.map(option => (
-                            <FormItem key={option.value}>
-                              <FormControl>
-                                <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
-                              </FormControl>
-                              <Label
-                                htmlFor={option.value}
-                                className={cn(
-                                    "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
-                                    option.value === 'artist' && "border-accent-gold/50"
-                                )}
-                              >
-                                {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
-                                <span className="font-bold text-lg">{option.label}</span>
-                                <span className="text-2xl text-foreground font-bold my-2">{option.price}</span>
-                                <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
-                                    {option.features.map(feature => (
-                                        <li key={feature} className="flex items-start gap-2">
-                                            {feature.includes('Personalizados') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
-                                            <span>{feature}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                              </Label>
-                            </FormItem>
-                          ))}
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
-                  <Wand2 className="mr-2 h-5 w-5" />
-                  Generar mi Canción
-                </Button>
-            </form>
-            </Form>
+                    
+                    <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
+                      <Wand2 className="mr-2 h-5 w-5" />
+                      Generar mi Canción
+                    </Button>
+                </form>
+                </Form>
+            </TooltipProvider>
         </CardContent>
     </Card>
   );
 }
-
-    
