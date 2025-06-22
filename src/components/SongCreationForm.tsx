@@ -26,7 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2 } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook } from "lucide-react";
 import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -34,7 +34,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
-import { Facebook } from "lucide-react";
 
 
 const songCreationSchema = z.object({
@@ -72,9 +71,9 @@ const planDetails = {
 
 const planOptions = {
     emotional: [
-        { value: "creator", label: "Creador", price: "$249", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
-        { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
-        { value: "master", label: "Maestro", price: "$999", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
+        { value: "creator", label: "Creador", price: "$199", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
+        { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
+        { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
     ],
     corrido: [
         { value: "creator", label: "El Relato", price: "$249", features: ["Corrido completo (Bélico, etc.)", "Letra que narra tu hazaña", "1 Revisión de la letra", "Calidad profesional MP3"] },
@@ -85,7 +84,14 @@ const planOptions = {
 
 const famousArtistSuggestions = {
     emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
-    corrido: ["Estilo Peso Pluma", "Estilo Natanael Cano", "Estilo Chalino Sánchez"],
+    corrido: [
+        "Estilo Peso Pluma", 
+        "Estilo Natanael Cano", 
+        "Estilo Gerardo Ortiz", 
+        "Estilo El Komander",
+        "Estilo El de la Guitarra (Voz y Guitarra)",
+        "Estilo Chalino Sánchez"
+    ],
 };
 
 const experienceThemes = {
@@ -214,21 +220,30 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   }, [songTypeParam, planParam, form]);
   
   useEffect(() => {
-    // 15-second preview logic
     const audio = audioRef.current;
+    if (!audio) return;
+
     const handleTimeUpdate = () => {
-        if (audio && audio.currentTime > 15) {
+        if (audio.currentTime > 15) {
             audio.pause();
             audio.currentTime = 0;
-        }
-    };
-    if (audio) {
-        audio.addEventListener('timeupdate', handleTimeUpdate);
-    }
-    return () => {
-        if (audio) {
+            // Detach the listener after it has run once
             audio.removeEventListener('timeupdate', handleTimeUpdate);
         }
+    };
+    
+    const handlePlay = () => {
+        // Reset and add the listener only when play starts
+        audio.currentTime = 0;
+        audio.removeEventListener('timeupdate', handleTimeUpdate); // ensure no duplicates
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+    };
+
+    audio.addEventListener('play', handlePlay);
+
+    return () => {
+        audio.removeEventListener('play', handlePlay);
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
     };
   }, [result]);
 
@@ -353,8 +368,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
             <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
                 <theme.Icon className="mx-auto h-12 w-12 text-primary" />
-                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión</CardTitle>
-                <CardDescription className="text-muted-foreground mt-2">Escucha un preview de 15 segundos y solicita cambios.</CardDescription>
+                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión (Cambio {planDetails[plan].revisions - revisionsRemaining + 1}/{planDetails[plan].revisions})</CardTitle>
+                <CardDescription className="text-muted-foreground mt-2">Escucha un preview de 15 segundos y solicita cambios si lo necesitas.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-8">
                 {albumArtUrl && (
@@ -367,6 +382,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     <audio ref={audioRef} controls src={result.audio} className="w-full">
                         Tu navegador no soporta el audio.
                     </audio>
+                     <p className="text-xs text-muted-foreground mt-2">El audio se detendrá a los 15 segundos. La versión final no tendrá esta limitación.</p>
                 </div>
                 <div className="bg-secondary/50 p-6 rounded-lg">
                     <h3 className="font-headline text-2xl mb-4">Letra Generada</h3>
@@ -382,7 +398,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             onChange={(e) => setRevisionRequest(e.target.value)}
                             rows={4}
                         />
-                        <Button onClick={handleRevisionSubmit} disabled={!revisionRequest}>Enviar Revisión (Cambio {planDetails[plan].revisions - revisionsRemaining + 1})</Button>
+                        <Button onClick={handleRevisionSubmit} disabled={!revisionRequest}>Enviar Revisión</Button>
                     </div>
                 ) : (
                     <div className="text-center p-4 bg-yellow-900/20 rounded-md">
@@ -394,14 +410,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
                             <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">
-                                ¡Me encanta! Aceptar y Continuar al Pago
+                                ¡Me encanta! Aceptar y Continuar
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                             <AlertDialogHeader>
                                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                    Si aceptas la canción ahora, perderás las <span className="font-bold">{revisionsRemaining}</span> revisiones restantes que te quedan. Esta acción no se puede deshacer.
+                                    {revisionsRemaining > 0 ? `Si aceptas la canción ahora, perderás las ${revisionsRemaining} revisiones restantes. ¿Deseas continuar?` : 'Estás a punto de aceptar la versión final de tu canción.'}
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -483,14 +499,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <CardContent className="p-8">
             <div className="space-y-8 text-center animate-fade-in">
                 <Star className="mx-auto h-12 w-12 text-accent-gold" />
-                <h2 className="font-headline text-4xl font-bold">¿Deseas que un FAMOSO ayude a tu canción?</h2>
+                <h2 className="font-headline text-4xl font-bold">Dale un Estilo Único a tu Canción</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz avanzado para inspirarnos en el estilo de un artista famoso, dándole un toque aún más profesional.
+                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo avanzado para inspirarnos en el <span className="font-bold text-foreground">estilo vocal e instrumental</span> de un artista famoso, dándole un toque aún más distintivo y profesional.
                 </p>
                 
                 <Card className="max-w-lg mx-auto text-left">
                     <CardHeader>
-                        <CardTitle>Elige un Estilo de Voz</CardTitle>
+                        <CardTitle>Elige un Estilo de Referencia</CardTitle>
                         <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -506,18 +522,18 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             value={collaborationChoice}
                             onChange={(e) => setCollaborationChoice(e.target.value)}
                         />
-                         <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal del artista para la interpretación.</p>
+                         <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal e instrumental del artista.</p>
                     </CardContent>
                 </Card>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <Button variant="ghost" size="lg" onClick={() => handleCreateSong(null)}>
                         <Users className="mr-2 h-5 w-5" />
-                        No, gracias. Usar voz estándar.
+                        No, gracias. Usar la voz estándar.
                     </Button>
-                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice || "Voz de Famoso")}>
+                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice || "Estilo Famoso")}>
                         <Mic2 className="mr-2 h-5 w-5" />
-                        Sí, agregar por $299 y generar
+                        Sí, agregar Estilo Famoso por $299
                     </Button>
                 </div>
             </div>
@@ -540,7 +556,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
-                    <FormField control={form.control} name="styleVoice" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+                    <FormField control={form.control} name="voiceType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
@@ -620,7 +636,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                           <CommandItem
                                             value={genre}
                                             key={genre}
-                                            onSelect={(currentValue) => {
+                                            onSelect={() => {
                                               form.setValue("genre", genre === field.value ? "" : genre);
                                               setGenrePopoverOpen(false);
                                               setGenreSearch("");
@@ -657,7 +673,11 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
                             <AccordionTrigger className="font-headline text-lg hover:no-underline">
-                              Detalles Avanzados (Planes Artista y Maestro)
+                              <div className="flex items-center gap-2">
+                                <Wand2 className="h-5 w-5 text-accent-gold" />
+                                <span>Detalles Avanzados</span>
+                                {plan !== 'creator' ? null : <span className="text-xs font-normal bg-muted text-muted-foreground px-2 py-1 rounded-full">Planes Artista y Maestro</span>}
+                              </div>
                             </AccordionTrigger>
                             <AccordionContent className="space-y-8 pt-4">
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -665,7 +685,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Instrumentación
-                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <FormControl><Input placeholder="Ej: Acordeón, bajo sexto, tololoche" {...field} disabled={plan === 'creator'} /></FormControl>
                                             <FormMessage />
@@ -675,7 +695,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Ambiente (Mood)
-                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent>
                                                 {theme.moods.map(mood => <SelectItem key={mood.value} value={mood.value}>{mood.label}</SelectItem>)}
@@ -687,7 +707,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Tempo
-                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select>
                                             <FormMessage />
@@ -702,13 +722,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     )}/>
                                </div>
 
-                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t" hidden={plan !== 'master'}>
-                                   <p className={cn("md:col-span-2 text-sm text-muted-foreground -mb-4", plan !== 'master' && 'hidden')}>Exclusivo Plan Maestro</p>
+                               <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t", plan !== 'master' && 'hidden')}>
+                                   <p className="md:col-span-2 text-sm text-muted-foreground -mb-4">Exclusivo Plan Maestro</p>
                                     <FormField control={form.control} name="structure" render={({ field }) => (
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Estructura de la Canción
-                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select>
                                             <FormMessage />
@@ -718,7 +738,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Final de la Canción
-                                                <Tooltip><TooltipTrigger asChild><Info className="h-4 w-4 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select>
                                             <FormMessage />
@@ -758,16 +778,16 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     htmlFor={option.value}
                                     className={cn(
                                         "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
-                                        option.value === 'artist' && "border-accent-gold/50"
+                                        option.value === 'artist' && (songType === 'emotional' ? "peer-data-[state=unchecked]:border-primary/50" : "peer-data-[state=unchecked]:border-corridos-red/50")
                                     )}
                                   >
-                                    {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
+                                    {option.value === 'artist' && <span className={cn("text-xs text-primary-foreground px-2 py-0.5 rounded-full absolute -top-2.5", songType === 'emotional' ? 'bg-primary' : 'bg-corridos-red text-white')}>Recomendado</span>}
                                     <span className="font-bold text-lg">{option.label}</span>
                                     <span className="text-2xl text-foreground font-bold my-2">{option.price}</span>
                                     <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
-                                        {option.features.map(feature => (
-                                            <li key={feature} className="flex items-start gap-2">
-                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
+                                        {option.features.map((feature, idx) => (
+                                            <li key={idx} className="flex items-start gap-2">
+                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') || feature.includes('Revisiones') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Pista') ? <Disc className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
                                                 <span>{feature}</span>
                                             </li>
                                         ))}
@@ -793,5 +813,3 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
-
-    
