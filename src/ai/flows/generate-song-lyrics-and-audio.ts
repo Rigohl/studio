@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import {toWav} from '@/lib/audio';
-import {z} from 'genkit';
+import { z } from 'zod';
 
 const GenerateSongLyricsAndAudioInputSchema = z.object({
   email: z.string().email().describe('The email of the requester to send the final song to.'),

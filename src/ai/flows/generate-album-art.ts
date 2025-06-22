@@ -9,7 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 
 const GenerateAlbumArtInputSchema = z.object({
   prompt: z.string().describe('A descriptive prompt for the album art, based on the song story.'),

@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import {toWav} from '@/lib/audio';
-import {z} from 'genkit';
+import { z } from 'zod';
 import { songCreationSchema, SongCreationFormValues } from '@/config/schemas';
 
 const IncorporateUserRequestsIntoSongInputSchema = z.object({
