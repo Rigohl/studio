@@ -6,50 +6,55 @@ To get started, take a look at src/app/page.tsx.
 
 ## Project Structure Map
 
-This is a breakdown of your web application's structure, built with Next.js (App Router), Tailwind CSS, and Genkit for AI.
+This is a breakdown of your web application's structure. Understanding it will help you know where to find each piece and how they connect.
 
-### Root Directory (`/`)
+### **Root Directory (`/`)**
 
-*   **`package.json`**: The project's "birth certificate." It defines dependencies (libraries like React, Next.js, Genkit) and scripts to run, build, and test your website (e.g., `npm run dev`).
-*   **`tailwind.config.ts`**: The control center for your design. This is where you define colors (`emotional-pink`, `accent-gold`), fonts (`Playfair Display`), and other Tailwind CSS style customizations.
-*   **`next.config.ts`**: Configuration file for Next.js.
-*   **`tsconfig.json`**: Configuration file for TypeScript. It helps prevent errors and keep the code clean.
-*   **`apphosting.yaml`**: Defines the configuration for deploying to Firebase App Hosting.
+These are the main configuration files that control the entire project.
 
----
-
-### `src` Folder (Source Code)
-
-This is the main folder where all your application's code lives.
-
-*   **`src/app/`**: The heart of the application. Each folder inside represents a route (a page) on your website.
-    *   `layout.tsx`: The main template for the entire website. It contains the header (`<Header />`), footer (`<Footer />`), and the base HTML structure that wraps all other pages.
-    *   `page.tsx`: This is your **homepage** (what you see at `yourdomain.com/`).
-    *   `globals.css`: Defines global styles and color variables (theme) used by ShadCN and Tailwind components.
-    *   **Page Folders** (e.g., `/faq`, `/ejemplos`, `/formularios`, `/test-pago`):
-        *   `page.tsx`: Inside each of these folders, this file contains the React component that renders that specific page.
-        *   `actions.ts` (only in `/test-pago`): A special Next.js file (Server Action). It contains the server-side logic that runs securely when the user submits the form. It handles calling the AI to create the song.
-
-*   **`src/ai/`**: The brain of the artificial intelligence.
-    *   `genkit.ts`: Initializes and configures Genkit, the AI tool.
-    *   **`flows/`**: This is where the AI workflows are defined.
-        *   `generate-song-lyrics-and-audio.ts`: Contains the prompt and logic for the AI to generate both the lyrics and the audio file for the song based on the form responses.
-        *   `incorporate-user-requests-into-song.ts`: Defines a flow for future song revision features.
-
-*   **`src/components/`**: The reusable building blocks of your interface.
-    *   `Header.tsx`, `Footer.tsx`: The header and footer components.
-    *   `SongCreationForm.tsx`: The most complex component. It is the song creation questionnaire, with all its logic: fields, validations, the differentiated visual experience (emotional vs. corrido), and the multi-step flow (form -> upsell -> loading -> result).
-    *   **`ui/`**: Pre-built UI components from **ShadCN** (e.g., `Button.tsx`, `Card.tsx`, `Input.tsx`). You generally don't need to modify these.
-
-*   **`src/hooks/`**: Custom React "hooks" for reusable logic.
-    *   `use-toast.ts`: Handles pop-up notifications (toasts).
-    *   `use-mobile.ts`: A utility to detect if the website is being viewed on a mobile device.
-
-*   **`src/lib/`**: Utility functions.
-    *   `utils.ts`: Contains `cn`, a very useful function for intelligently combining Tailwind CSS classes.
+*   `package.json`: The project's "birth certificate." It defines the libraries it uses (dependencies) and the commands to run it (`npm run dev`).
+*   `tailwind.config.ts`: The design control center. Here you define the color palette, fonts, and other Tailwind CSS styles.
+*   `next.config.ts`: Configuration file for Next.js.
+*   `tsconfig.json`: Configuration file for TypeScript, which helps keep the code clean and error-free.
+*   `apphosting.yaml`: Defines the configuration for deployment to Firebase App Hosting.
+*   `README.md`: This file, your project's documentation!
 
 ---
 
-### `public` Folder
+### **`src` Folder (The Source Code)**
 
-This is where static files that are publicly accessible, like images, sample audio, or fonts, are stored.
+The most important folder, where all the logic and content of your application lives.
+
+*   **`src/app/` (The Application Heart - 20 files)**
+    *   **Purpose:** Manages all the pages and routes of your website. Each subfolder here represents a page.
+    *   **Main Files:**
+        *   `layout.tsx`: The main template that wraps the entire website (contains the Header and Footer).
+        *   `page.tsx`: The home page.
+        *   `globals.css`: Defines the global styles and colors (the theme).
+        *   `not-found.tsx`: The 404 error page.
+        *   `robots.ts` & `sitemap.ts`: SEO files that help Google understand your site.
+    *   **Subfolders (Pages):** `confirmacion`, `ejemplos`, `faq`, `formularios`, `privacy`, `proceso`, `quienes-somos`, `terms`, `test-pago`.
+
+*   **`src/ai/` (The AI Brain - 5 files)**
+    *   **Purpose:** Contains all the logic related to Artificial Intelligence.
+    *   **Files:** `genkit.ts` (initialization) and `dev.ts`.
+    *   **Subfolder `flows/`:** Contains the AI "flows" that define how songs and album covers are generated and how revisions are processed.
+
+*   **`src/components/` (Building Blocks - 36 files)**
+    *   **Purpose:** Stores reusable interface components.
+    *   **Main Files:** `Header.tsx`, `Footer.tsx`, and `SongCreationForm.tsx` (the song creation form).
+    *   **Subfolder `ui/` (33 files):** This is your UI toolkit. It contains ready-to-use ShadCN components like buttons, cards, dialogs, etc. You generally don't need to edit them, just import them.
+
+*   **`src/hooks/` (Reusable Logic - 2 files)**
+    *   **Purpose:** Contains React "hooks" to encapsulate logic used in multiple places.
+    *   **Files:** `use-mobile.ts` (to detect if a mobile device is being used) and `use-toast.ts` (to manage notifications).
+
+*   **`src/lib/` (Utilities - 1 file)**
+    *   **Purpose:** General helper functions.
+    *   **Files:** `utils.ts`, which contains the `cn` function for intelligently combining CSS classes.
+
+---
+
+### **`public` Folder**
+
+*   **Purpose:** This is where you place all static files that need to be directly accessible from the web, such as images, sample audio (`/audio/placeholder-1.mp3`), fonts, or videos.
