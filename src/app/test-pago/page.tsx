@@ -18,7 +18,7 @@ function TestPagoFormLoader() {
     )
 }
 
-function TestPagoForm() {
+function TestPagoContent() {
   const searchParams = useSearchParams();
   const songType = searchParams.get("type");
 
@@ -44,7 +44,7 @@ function TestPagoForm() {
 export default function TestPagoPage() {
   return (
     <Suspense fallback={<TestPagoFormLoader />}>
-      <TestPagoForm />
+      <TestPagoContent />
     </Suspense>
   );
 }

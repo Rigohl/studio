@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -59,18 +59,16 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SongResult | null>(null);
 
-  const defaultSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
-
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
     defaultValues: {
-      songType: defaultSongType,
+      songType: "emotional",
       dedicatedTo: "",
       requester: "",
       nickname: "",
       relationship: "",
       story: "",
-      genre: defaultSongType === "emotional" ? "Balada Pop" : "Corrido Tumbado",
+      genre: "Balada Pop",
       voice: "male",
       includeNames: false,
       keywords: "",
@@ -80,6 +78,16 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       famousCollaboration: false,
     },
   });
+
+  useEffect(() => {
+    if (songTypeParam) {
+      const newSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
+      if (form.getValues("songType") !== newSongType) {
+        form.setValue("songType", newSongType);
+        form.setValue("genre", newSongType === "emotional" ? "Balada Pop" : "Corrido Tumbado");
+      }
+    }
+  }, [songTypeParam, form]);
 
   async function onSubmit(data: SongCreationFormValues) {
     setLoading(true);
@@ -154,7 +162,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-lg font-headline">Tipo de Canción</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona el estilo principal" />
