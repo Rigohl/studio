@@ -1,3 +1,4 @@
+
 "use server";
 
 import { generateSongLyricsAndAudio, GenerateSongLyricsAndAudioInput } from "@/ai/flows/generate-song-lyrics-and-audio";
@@ -16,9 +17,14 @@ const actionSchema = z.object({
   includeNames: z.boolean().optional(),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
-  styleVoice: z.string().optional(),
+  instrumentation: z.string().optional(),
+  mood: z.string().optional(),
+  tempo: z.string().optional(),
+  structure: z.string().optional(),
+  ending: z.string().optional(),
   plan: z.string(),
   famousCollaboration: z.boolean().optional(),
+  styleVoice: z.string().optional(),
 });
 
 export async function createSongAction(data: z.infer<typeof actionSchema>) {
@@ -39,6 +45,11 @@ export async function createSongAction(data: z.infer<typeof actionSchema>) {
       keywords: validatedData.keywords,
       referenceSong: validatedData.referenceSong,
       styleVoice: validatedData.styleVoice,
+      instrumentation: validatedData.instrumentation,
+      mood: validatedData.mood,
+      tempo: validatedData.tempo,
+      structure: validatedData.structure,
+      ending: validatedData.ending,
     };
 
     const result = await generateSongLyricsAndAudio(flowInput);

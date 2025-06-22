@@ -45,6 +45,11 @@ const songCreationSchema = z.object({
   includeNames: z.boolean().default(false),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
+  instrumentation: z.string().optional(),
+  mood: z.string().optional(),
+  tempo: z.string().optional(),
+  structure: z.string().optional(),
+  ending: z.string().optional(),
   plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
   famousCollaboration: z.boolean().default(false),
   styleVoice: z.string().optional(),
@@ -55,9 +60,9 @@ type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "result";
 
 const planOptions = [
-    { value: "creator", label: "Creador", price: "$199", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
-    { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Acceso a Detalles Avanzados", "Carátula de Álbum Digital"] },
-    { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
+    { value: "creator", label: "Creador", price: "$249", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
+    { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición (Instrumentos, Tempo, Mood)", "Carátula de Álbum Digital"] },
+    { value: "master", label: "Maestro", price: "$999", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Control Total (Estructura, Final)", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
 ];
 
 const famousArtistSuggestions = {
@@ -83,7 +88,7 @@ const experienceThemes = {
     corrido: {
         Icon: Skull,
         cardClass: "border-corridos-red/50",
-        title: "Forja tu Corrido Bélico",
+        title: "Forja tu Corrido",
         description: "Convierte hazañas y relatos de poder en una leyenda que resonará.",
         dedicatedToLabel: "Protagonista del Corrido",
         dedicatedToPlaceholder: "Ej: El Compa Juan, El Jefe, mi padre...",
@@ -97,7 +102,7 @@ const experienceThemes = {
 };
 
 const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
-const corridoGenres = ["Corrido Tumbado", "Sierreño", "Trap Corrido", "Corrido Clásico"];
+const corridoGenres = ["Corrido Tumbado", "Corrido Bélico", "Corrido Alterado", "Corrido Progresivo", "Sierreño", "Trap Corrido", "Norteño-Corrido", "Banda-Corrido"];
 
 export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
   const { toast } = useToast();
@@ -127,6 +132,11 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       includeNames: false,
       keywords: "",
       referenceSong: "",
+      instrumentation: "",
+      mood: "",
+      tempo: "",
+      structure: "",
+      ending: "",
       plan: "artist",
       famousCollaboration: false,
       styleVoice: "",
@@ -417,17 +427,40 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                     <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
                         <AccordionTrigger className="font-headline text-lg hover:no-underline">
                           Detalles Avanzados (Planes Artista y Maestro)
-                          </AccordionTrigger>
+                        </AccordionTrigger>
                         <AccordionContent className="space-y-8 pt-4">
-                            <FormField control={form.control} name="keywords" render={({ field }) => (
-                                <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="referenceSong" render={({ field }) => (
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <FormField control={form.control} name="instrumentation" render={({ field }) => (
+                                    <FormItem><FormLabel>Instrumentación</FormLabel><FormControl><Input placeholder="Ej: Acordeón, bajo sexto, tololoche" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="mood" render={({ field }) => (
+                                    <FormItem><FormLabel>Ambiente (Mood)</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent><SelectItem value="nostalgico">Nostálgico</SelectItem><SelectItem value="agresivo">Agresivo</SelectItem><SelectItem value="festivo">Festivo</SelectItem><SelectItem value="reflexivo">Reflexivo</SelectItem><SelectItem value="epico">Épico</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="tempo" render={({ field }) => (
+                                    <FormItem><FormLabel>Tempo</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="keywords" render={({ field }) => (
+                                    <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                           </div>
+
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t" hidden={plan !== 'master'}>
+                               <p className={cn("md:col-span-2 text-sm text-muted-foreground -mb-4", plan !== 'master' && 'hidden')}>Exclusivo Plan Maestro</p>
+                                <FormField control={form.control} name="structure" render={({ field }) => (
+                                    <FormItem><FormLabel>Estructura de la Canción</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="ending" render={({ field }) => (
+                                    <FormItem><FormLabel>Final de la Canción</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                                )}/>
+                           </div>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
+                             <FormField control={form.control} name="referenceSong" render={({ field }) => (
                                 <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="includeNames" render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
-                            )}/>
+                             )}/>
+                              <FormField control={form.control} name="includeNames" render={({ field }) => (
+                                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 h-full justify-center"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
+                              )}/>
+                           </div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>

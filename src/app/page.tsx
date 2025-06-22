@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc } from 'lucide-react';
+import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc, Wand2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -327,7 +327,7 @@ export default function Home() {
                 <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4 text-left p-6">
-                <p className="font-bold text-4xl text-center mb-4">$199</p>
+                <p className="font-bold text-4xl text-center mb-4">$249</p>
                  <Separator />
                 <ul className="space-y-3 text-muted-foreground pt-4">
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa (Emocional o Corrido)</span></li>
@@ -338,7 +338,7 @@ export default function Home() {
               </CardContent>
               <CardFooter className="flex-col gap-4 p-6">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/formularios">Empezar</Link>
+                  <Link href="/formularios?plan=creator">Empezar</Link>
                 </Button>
               </CardFooter>
             </Card>
@@ -355,12 +355,12 @@ export default function Home() {
                 <CardDescription className="text-lg text-accent-gold">El más popular para un resultado increíble.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4 text-left p-6">
-                <p className="font-bold text-4xl text-center mb-4">$399</p>
+                <p className="font-bold text-4xl text-center mb-4">$499</p>
                 <Separator />
                 <ul className="space-y-3 text-muted-foreground pt-4">
                    <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
                    <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
-                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Acceso a Detalles Avanzados</span></li>
+                   <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tempo)</span></li>
                    <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
                 </ul>
               </CardContent>
@@ -378,18 +378,19 @@ export default function Home() {
                 <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4 text-left p-6">
-                 <p className="font-bold text-4xl text-center mb-4">$799</p>
+                 <p className="font-bold text-4xl text-center mb-4">$999</p>
                  <Separator />
                 <ul className="space-y-3 text-muted-foreground pt-4">
                   <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
                    <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
                   <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
+                   <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Géneros Musicales <span className="font-bold text-foreground">Personalizados y Exóticos</span></span></li>
                 </ul>
               </CardContent>
               <CardFooter className="flex-col gap-4 p-6">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href="/formularios">Empezar</Link>
+                  <Link href="/formularios?plan=master">Empezar</Link>
                 </Button>
               </CardFooter>
             </Card>

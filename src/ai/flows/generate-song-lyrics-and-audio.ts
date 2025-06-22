@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent that generates song lyrics and audio based on user input.
@@ -26,6 +27,11 @@ const GenerateSongLyricsAndAudioInputSchema = z.object({
   referenceSong: z.string().optional().describe('A reference song for inspiration.'),
   styleVoice: z.string().optional().describe('The desired style of voice for the song.'),
   includeNames: z.boolean().optional().describe('Whether to include names in the song.'),
+  instrumentation: z.string().optional().describe('The desired instrumentation for the song.'),
+  mood: z.string().optional().describe('The desired mood or atmosphere for the song.'),
+  tempo: z.string().optional().describe('The desired tempo for the song (e.g., slow, medium, fast).'),
+  structure: z.string().optional().describe('The desired structure for the song (e.g., verse-chorus, narrative).'),
+  ending: z.string().optional().describe('The desired ending for the song (e.g., fade out, abrupt end).'),
 });
 
 export type GenerateSongLyricsAndAudioInput = z.infer<typeof GenerateSongLyricsAndAudioInputSchema>;
@@ -45,25 +51,46 @@ const lyricsPrompt = ai.definePrompt({
   name: 'generateLyricsPrompt',
   input: {schema: GenerateSongLyricsAndAudioInputSchema},
   output: {schema: z.object({lyrics: z.string()})},
-  prompt: `Eres un compositor experto. Escribe una canción basada en los siguientes detalles.
+  prompt: `Eres un compositor experto y productor musical. Escribe una canción detallada basada en los siguientes parámetros.
 La canción es de tipo {{songType}}.
 Es del género {{genre}}.
-Está dedicada a {{dedicatedTo}} (apodo: {{nickname}}), de parte de {{requester}}. Su relación es de {{relationship}}.
+Está dedicada a {{dedicatedTo}}{{#if nickname}} (apodo: {{nickname}}){{/if}}, de parte de {{requester}}. Su relación es de {{relationship}}.
+
+La historia detrás de la canción es fundamental: {{{story}}}
+
 {{#if includeNames}}
-Asegúrate de incluir sus nombres en la letra.
-{{/if}}
-La historia detrás de la canción es: {{{story}}}
-{{#if keywords}}
-Incorpora estas palabras clave: {{{keywords}}}
-{{/if}}
-{{#if referenceSong}}
-Usa esta canción como inspiración para el estilo y el tono: {{{referenceSong}}}
-{{/if}}
-{{#if styleVoice}}
-El estilo vocal debe ser como: {{{styleVoice}}}
+Asegúrate de incluir los nombres "{{dedicatedTo}}" y "{{requester}}" en la letra de forma natural.
 {{/if}}
 
-Genera únicamente la letra de la canción.`,
+Parámetros de composición avanzada:
+{{#if mood}}
+- El ambiente (mood) de la canción debe ser: {{{mood}}}.
+{{/if}}
+{{#if tempo}}
+- El tempo de la canción debe ser: {{{tempo}}}.
+{{/if}}
+{{#if instrumentation}}
+- La instrumentación principal debe incluir: {{{instrumentation}}}.
+{{/if}}
+{{#if structure}}
+- La estructura de la canción debe seguir este formato: {{{structure}}}.
+{{/if}}
+{{#if ending}}
+- El final de la canción debe ser: {{{ending}}}.
+{{/if}}
+
+Inspiración y Estilo:
+{{#if keywords}}
+- Incorpora estas palabras clave de forma creativa: {{{keywords}}}.
+{{/if}}
+{{#if referenceSong}}
+- Usa esta canción como inspiración para el estilo y el tono: {{{referenceSong}}}.
+{{/if}}
+{{#if styleVoice}}
+- El estilo vocal debe ser como: {{{styleVoice}}}.
+{{/if}}
+
+Genera únicamente la letra de la canción. La letra debe ser rica, coherente y seguir todas las instrucciones proporcionadas.`,
 });
 
 async function toWav(
