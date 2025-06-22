@@ -15,9 +15,9 @@ export default function FormulariosPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-2 border-emotional-pink/50">
+        <Card className="group text-center shadow-lg border-2 border-emotional-pink/50 transition-all duration-300 hover:border-emotional-pink hover:shadow-2xl hover:-translate-y-2 hover:bg-emotional-pink/10">
           <CardHeader>
-            <Heart className="mx-auto h-12 w-12 text-emotional-pink mb-4" />
+            <Heart className="mx-auto h-12 w-12 text-emotional-pink mb-4 transition-transform duration-300 group-hover:scale-110" />
             <CardTitle className="font-headline text-3xl">Canciones Emocionales</CardTitle>
             <CardDescription className="pt-2">
               Para aniversarios, dedicatorias, recuerdos y momentos que merecen una melodía inolvidable. Transforma tus sentimientos en una balada, pop o el género que prefieras.
@@ -33,11 +33,11 @@ export default function FormulariosPage() {
           </CardContent>
         </Card>
 
-        <Card className="text-center shadow-lg hover:shadow-xl transition-shadow border-2 border-corridos-red/50 bg-secondary text-foreground">
+        <Card className="group text-center shadow-lg border-2 border-corridos-red/50 bg-secondary text-foreground transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2 hover:bg-corridos-red/10">
           <CardHeader>
-            <Skull className="mx-auto h-12 w-12 text-corridos-red mb-4" />
+            <Skull className="mx-auto h-12 w-12 text-corridos-red mb-4 transition-transform duration-300 group-hover:scale-110" />
             <CardTitle className="font-headline text-3xl">Corridos Bélicos</CardTitle>
-            <CardDescription className="pt-2 text-muted-foreground">
+            <CardDescription className="pt-2 text-muted-foreground group-hover:text-foreground/80 transition-colors">
               Para narrar hazañas, celebrar la lealtad y contar historias de poder con el ritmo y la fuerza de los corridos tumbados. Tu vida, tu corrido.
             </CardDescription>
           </CardHeader>
