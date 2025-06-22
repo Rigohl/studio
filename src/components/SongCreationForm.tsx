@@ -25,10 +25,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, Image as ImageIcon, Disc } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+
 
 const songCreationSchema = z.object({
   songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
@@ -44,6 +47,7 @@ const songCreationSchema = z.object({
   referenceSong: z.string().optional(),
   plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
   famousCollaboration: z.boolean().default(false),
+  styleVoice: z.string().optional(),
 });
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
@@ -51,9 +55,9 @@ type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "result";
 
 const planOptions = [
-  { value: "creator", label: "Creador", description: "1 Revisión", price: "$199" },
-  { value: "artist", label: "Artista", description: "2 Revisiones, Carátula", price: "$399" },
-  { value: "master", label: "Maestro", description: "3 Revisiones, Pista", price: "$799" },
+    { value: "creator", label: "Creador", price: "$199", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
+    { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Acceso a Detalles Avanzados", "Carátula de Álbum Digital"] },
+    { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental"] },
 ];
 
 const famousArtistSuggestions = {
@@ -74,7 +78,7 @@ const experienceThemes = {
         relationshipPlaceholder: "Ej: Novia, mejor amigo, hijo...",
         storyLabel: "Vierte aquí tus recuerdos y emociones",
         storyPlaceholder: "Describe vuestra historia, momentos especiales, anécdotas, lo que sientes...",
-        genrePlaceholder: "Ej: Balada Pop, Acústico, R&B, Cumbia romántica",
+        genrePlaceholder: "Ej: Balada Pop, Acústico, R&B...",
     },
     corrido: {
         Icon: Skull,
@@ -88,9 +92,12 @@ const experienceThemes = {
         relationshipPlaceholder: "Ej: Socio, admirador, familiar...",
         storyLabel: "Forja la leyenda. ¿Cuál es la hazaña?",
         storyPlaceholder: "Narra la historia de superación, lealtad, poder o el evento clave que define al protagonista.",
-        genrePlaceholder: "Ej: Corrido Tumbado, Sierreño, Trap Corrido",
+        genrePlaceholder: "Ej: Corrido Tumbado, Sierreño...",
     }
 };
+
+const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
+const corridoGenres = ["Corrido Tumbado", "Sierreño", "Trap Corrido", "Corrido Clásico"];
 
 export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
   const { toast } = useToast();
@@ -99,9 +106,11 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SongResult | null>(null);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
+  const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
+  const genres = songType === 'corrido' ? corridoGenres : emotionalGenres;
 
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
@@ -119,6 +128,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       referenceSong: "",
       plan: "artist",
       famousCollaboration: false,
+      styleVoice: "",
     },
   });
 
@@ -128,8 +138,11 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     if (songTypeParam) {
       const newSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
       if (form.getValues("songType") !== newSongType) {
-        form.setValue("songType", newSongType);
-        form.setValue("genre", newSongType === "emotional" ? "Balada Pop" : "Corrido Tumbado");
+        form.reset({
+          ...form.getValues(),
+          songType: newSongType,
+          genre: newSongType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
+        });
       }
     }
   }, [songTypeParam, form]);
@@ -148,7 +161,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     const finalData = {
         ...formData,
         famousCollaboration: !!collaboration,
-        styleVoice: collaboration,
+        styleVoice: collaboration || "",
     };
     
     try {
@@ -171,7 +184,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
         description: errorMessage,
         variant: "destructive",
       });
-      setFormStep("filling"); // Go back to the form
+      setFormStep("filling");
     } finally {
       setLoading(false);
     }
@@ -229,9 +242,9 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
         <CardContent className="p-8">
             <div className="space-y-8 text-center animate-fade-in">
                 <Star className="mx-auto h-12 w-12 text-accent-gold" />
-                <h2 className="font-headline text-4xl font-bold">Un Toque de Estrella (Opcional)</h2>
+                <h2 className="font-headline text-4xl font-bold">¿Deseas que un FAMOSO ayude a tu canción?</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional.
+                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz avanzado para inspirarnos en el estilo de un artista famoso, dándole un toque aún más profesional.
                 </p>
                 
                 <Card className="max-w-lg mx-auto text-left">
@@ -285,6 +298,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+                <FormField control={form.control} name="styleVoice" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
@@ -306,9 +320,82 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                 )}/>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <FormField control={form.control} name="genre" render={({ field }) => (
-                        <FormItem><FormLabel>Género Musical</FormLabel><FormControl><Input placeholder={theme.genrePlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
+                   <FormField
+                      control={form.control}
+                      name="genre"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Género Musical</FormLabel>
+                          <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-full justify-between font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Selecciona un género..."}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                              <Command
+                                filter={(value, search) => {
+                                  if (value.toLowerCase().includes(search.toLowerCase())) return 1;
+                                  return 0;
+                                }}
+                              >
+                                <CommandInput
+                                  placeholder="Busca o escribe un género..."
+                                />
+                                <CommandList>
+                                  <CommandEmpty>
+                                    <CommandItem
+                                      onSelect={(value) => {
+                                        form.setValue("genre", value);
+                                        setGenrePopoverOpen(false);
+                                      }}
+                                    >
+                                      Crear: "{form.getValues('genre')}"
+                                    </CommandItem>
+                                  </CommandEmpty>
+                                  <CommandGroup>
+                                    {genres.map((genre) => (
+                                      <CommandItem
+                                        value={genre}
+                                        key={genre}
+                                        onSelect={() => {
+                                          form.setValue("genre", genre);
+                                          setGenrePopoverOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === genre ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        {genre}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                           <FormDescription>
+                             Puedes elegir de la lista o escribir un género personalizado.
+                           </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <FormField control={form.control} name="voice" render={({ field }) => (
                         <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
                     )}/>
@@ -340,21 +427,28 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                     <FormItem className="space-y-3">
                       <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
                       <FormControl>
-                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">
+                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {planOptions.map(option => (
                             <FormItem key={option.value} className="flex-1">
                               <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
                               <Label
                                 htmlFor={option.value}
                                 className={cn(
-                                    "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative",
+                                    "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
                                     option.value === 'artist' && "border-accent-gold/50"
                                 )}
                               >
                                 {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
                                 <span className="font-bold text-lg">{option.label}</span>
-                                <span className="text-sm font-medium">{option.description}</span>
-                                <span className="text-lg text-foreground font-bold mt-1">{option.price}</span>
+                                <span className="text-2xl text-foreground font-bold my-2">{option.price}</span>
+                                <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
+                                    {option.features.map(feature => (
+                                        <li key={feature} className="flex items-start gap-2">
+                                            <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                                            <span>{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
                               </Label>
                             </FormItem>
                           ))}
