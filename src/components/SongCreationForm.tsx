@@ -38,6 +38,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const songCreationSchema = z.object({
   songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
+  email: z.string().email("Por favor, introduce un correo electrónico válido."),
   dedicatedTo: z.string().min(1, "Este campo es requerido."),
   requester: z.string().min(1, "Este campo es requerido."),
   nickname: z.string().optional(),
@@ -192,6 +193,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     defaultValues: {
       songType: songType,
       plan: isValidPlan(planParam) ? planParam : "artist",
+      email: "",
       dedicatedTo: "",
       requester: "",
       nickname: "",
@@ -334,7 +336,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       const res = await reviseSongAction({
         lyricsDraft: result.lyrics,
         requests: revisionRequest,
-        songDetails: formData,
+        songDetails: {
+            ...formData,
+            voiceType: formData.voice, // Ensure voiceType is passed
+        },
       });
 
       if (res.lyrics && res.audio) {
@@ -607,13 +612,20 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                         <FormField control={form.control} name="requester" render={({ field }) => (
                             <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         <FormField control={form.control} name="email" render={({ field }) => (
+                            <FormItem><FormLabel>Tu Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="Para enviarte la canción final" {...field} /></FormControl><FormDescription>No lo compartiremos con nadie.</FormDescription><FormMessage /></FormItem>
+                        )}/>
                         <FormField control={form.control} name="nickname" render={({ field }) => (
                             <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem>
                         )}/>
-                        <FormField control={form.control} name="relationship" render={({ field }) => (
-                            <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
                     </div>
+
+                    <FormField control={form.control} name="relationship" render={({ field }) => (
+                        <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
                     
                     <FormField control={form.control} name="story" render={({ field }) => (
                         <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>

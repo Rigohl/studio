@@ -14,6 +14,7 @@ import {z} from 'genkit';
 import wav from 'wav';
 
 const GenerateSongLyricsAndAudioInputSchema = z.object({
+  email: z.string().email().describe('The email of the requester to send the final song to.'),
   dedicatedTo: z.string().describe('The person the song is dedicated to.'),
   requester: z.string().describe('The person requesting the song.'),
   nickname: z.string().optional().describe('The nickname of the person the song is dedicated to.'),

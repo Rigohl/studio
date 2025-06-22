@@ -8,6 +8,7 @@ import { incorporateUserRequestsIntoSong, IncorporateUserRequestsIntoSongInput }
 import { z } from "zod";
 
 const songCreationSchema = z.object({
+  email: z.string().email(),
   songType: z.string(),
   dedicatedTo: z.string(),
   requester: z.string(),
@@ -36,6 +37,7 @@ export async function createSongAction(data: z.infer<typeof songCreationSchema>)
     const validatedData = songCreationSchema.parse(data);
 
     const flowInput: GenerateSongLyricsAndAudioInput = {
+      email: validatedData.email,
       songType: validatedData.songType,
       dedicatedTo: validatedData.dedicatedTo,
       requester: validatedData.requester,
@@ -135,5 +137,3 @@ export async function reviseSongAction(data: z.infer<typeof revisionSchema>) {
         return { lyrics: null, audio: null, error: errorMessage };
     }
 }
-
-    

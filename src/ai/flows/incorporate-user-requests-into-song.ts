@@ -15,6 +15,7 @@ import wav from 'wav';
 
 // Re-using the input schema from the main generation flow for consistency
 const SongDetailsSchema = z.object({
+  email: z.string().email(),
   dedicatedTo: z.string(),
   requester: z.string(),
   nickname: z.string().optional(),
@@ -157,5 +158,3 @@ const incorporateUserRequestsIntoSongFlow = ai.defineFlow(
     };
   }
 );
-
-    
