@@ -140,6 +140,9 @@ const experienceThemes = {
 const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
 const corridoGenres = ["Corrido Tumbado", "Corrido Bélico", "Corrido Alterado", "Corrido Progresivo", "Sierreño", "Trap Corrido", "Norteño-Corrido", "Banda-Corrido"];
 
+const emotionalArtists = ["Ed Sheeran", "Adele", "Luis Miguel", "Coldplay", "Taylor Swift", "Sam Smith"];
+const corridoArtists = ["Peso Pluma", "Natanael Cano", "Gerardo Ortiz", "El Komander", "Chalino Sánchez", "Junior H", "Fuerza Regida"];
+
 const voiceOptions = [
   { value: "male-deep", label: "Masculina - Profunda" },
   { value: "male-standard", label: "Masculina - Estándar" },
@@ -183,15 +186,16 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [isRevising, setIsRevising] = useState(false);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
-  const [genreSearch, setGenreSearch] = useState("");
   const [genre2PopoverOpen, setGenre2PopoverOpen] = useState(false);
-  const [genre2Search, setGenre2Search] = useState("");
+  const [artistPopoverOpen, setArtistPopoverOpen] = useState(false);
+
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
   const genres = songType === 'corrido' ? corridoGenres : emotionalGenres;
+  const artists = songType === 'corrido' ? corridoArtists : emotionalArtists;
   const currentPlanOptions = planDetails[songType];
 
   const form = useForm<SongCreationFormValues>({
@@ -650,139 +654,122 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                           render={({ field }) => (
                             <FormItem className="flex flex-col">
                               <FormLabel>Género Musical Principal</FormLabel>
-                              <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
+                                <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
                                 <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant="outline"
-                                      role="combobox"
-                                      className={cn(
-                                        "w-full justify-between font-normal",
-                                        !field.value && "text-muted-foreground"
-                                      )}
-                                    >
-                                      {field.value
-                                        ? field.value
-                                        : "Selecciona un género..."}
-                                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    <FormControl>
+                                    <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal",!field.value && "text-muted-foreground")}>
+                                        {field.value ? field.value : "Selecciona un género..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
-                                  </FormControl>
+                                    </FormControl>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                  <Command
-                                    value={genreSearch}
-                                    onValueChange={setGenreSearch}
-                                    filter={(value, search) => {
-                                      if (value.toLowerCase().includes(search.toLowerCase())) return 1;
-                                      return 0;
-                                    }}
-                                  >
-                                    <CommandInput
-                                      placeholder={plan === 'master' ? "Busca o escribe un género..." : "Busca un género..."}
-                                    />
-                                    <CommandList>
-                                      <CommandEmpty>
-                                        {plan === 'master' && genreSearch.length > 0 ? (
-                                          <CommandItem
-                                            className="cursor-pointer"
-                                            onSelect={() => {
-                                              form.setValue("genre", genreSearch);
-                                              setGenrePopoverOpen(false);
-                                              setGenreSearch("");
-                                            }}
-                                          >
-                                            <Check className="mr-2 h-4 w-4 opacity-0" />
-                                            Crear: "{genreSearch}"
-                                          </CommandItem>
-                                        ) : (
-                                          'No se encontraron resultados.'
-                                        )}
-                                      </CommandEmpty>
-                                      <CommandGroup>
-                                        {genres.map((genre) => (
-                                          <CommandItem
-                                            value={genre}
-                                            key={genre}
-                                            onSelect={() => {
-                                              form.setValue("genre", genre === field.value ? "" : genre);
-                                              setGenrePopoverOpen(false);
-                                              setGenreSearch("");
-                                            }}
-                                          >
-                                            <Check
-                                              className={cn(
-                                                "mr-2 h-4 w-4",
-                                                field.value === genre ? "opacity-100" : "opacity-0"
-                                              )}
-                                            />
-                                            {genre}
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
+                                    <Command>
+                                        <CommandInput placeholder={plan === 'master' ? "Busca o crea un género..." : "Busca un género..."} />
+                                        <CommandList>
+                                            <CommandEmpty>
+                                                 {plan === 'master' ? 'No se encontraron resultados. Escribe para crear uno nuevo.' : 'No se encontraron resultados.'}
+                                            </CommandEmpty>
+                                            <CommandGroup>
+                                                {genres.map((genre) => (
+                                                <CommandItem
+                                                    value={genre}
+                                                    key={genre}
+                                                    onSelect={(currentValue) => {
+                                                        form.setValue("genre", currentValue === field.value ? "" : currentValue);
+                                                        setGenrePopoverOpen(false);
+                                                    }}
+                                                >
+                                                    <Check className={cn("mr-2 h-4 w-4", genre === field.value ? "opacity-100" : "opacity-0")}/>
+                                                    {genre}
+                                                </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                            {plan === 'master' && (
+                                                <CommandGroup heading="Crear Nuevo">
+                                                     <CommandItem
+                                                        onSelect={(currentValue) => {
+                                                            const newGenre = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
+                                                            if (newGenre) {
+                                                                form.setValue("genre", newGenre);
+                                                                setGenrePopoverOpen(false);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span className="mr-2 h-4 w-4" /> {/* Placeholder for alignment */}
+                                                        <span>Crear el género que escribí</span>
+                                                    </CommandItem>
+                                                </CommandGroup>
+                                            )}
+                                        </CommandList>
+                                    </Command>
                                 </PopoverContent>
-                              </Popover>
+                                </Popover>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                          {plan === 'master' ? (
                             <FormField
-                            control={form.control}
-                            name="genre2"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel className="flex items-center gap-2">
-                                    Género de Fusión (Opcional)
-                                    <Wand2 className="h-4 w-4 text-accent-gold" />
-                                </FormLabel>
-                                <Popover open={genre2PopoverOpen} onOpenChange={setGenre2PopoverOpen}>
-                                    <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                        variant="outline"
-                                        role="combobox"
-                                        className={cn("w-full justify-between font-normal", !field.value && "text-muted-foreground")}
-                                        >
-                                        {field.value ? field.value : "Selecciona para fusionar..."}
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                    <Command value={genre2Search} onValueChange={setGenre2Search} filter={(value, search) => value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0}>
-                                        <CommandInput placeholder="Busca o crea un género..."/>
-                                        <CommandList>
-                                        <CommandEmpty>
-                                            <CommandItem className="cursor-pointer" onSelect={() => {
-                                                form.setValue("genre2", genre2Search);
-                                                setGenre2PopoverOpen(false);
-                                                setGenre2Search("");
-                                            }}>
-                                                <Check className="mr-2 h-4 w-4 opacity-0" />
-                                                Crear: "{genre2Search}"
-                                            </CommandItem>
-                                        </CommandEmpty>
-                                        <CommandGroup>
-                                            {genres.map((genre) => (
-                                            <CommandItem value={genre} key={genre} onSelect={() => {
-                                                form.setValue("genre2", genre === field.value ? "" : genre);
-                                                setGenre2PopoverOpen(false);
-                                                setGenre2Search("");
-                                            }}>
-                                                <Check className={cn("mr-2 h-4 w-4", field.value === genre ? "opacity-100" : "opacity-0")} />
-                                                {genre}
-                                            </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                    </PopoverContent>
-                                </Popover>
-                                <FormMessage />
-                                </FormItem>
-                            )}
+                                control={form.control}
+                                name="genre2"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel className="flex items-center gap-2">
+                                        Género de Fusión (Opcional)
+                                        <Wand2 className="h-4 w-4 text-accent-gold" />
+                                    </FormLabel>
+                                    <Popover open={genre2PopoverOpen} onOpenChange={setGenre2PopoverOpen}>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !field.value && "text-muted-foreground")}>
+                                                {field.value ? field.value : "Selecciona para fusionar..."}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                             <Command>
+                                                <CommandInput placeholder="Busca o crea un género..." />
+                                                <CommandList>
+                                                    <CommandEmpty>No se encontraron resultados. Escribe para crear.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {genres.map((genre) => (
+                                                        <CommandItem
+                                                            value={genre}
+                                                            key={genre}
+                                                            onSelect={(currentValue) => {
+                                                                form.setValue("genre2", currentValue === field.value ? "" : currentValue);
+                                                                setGenre2PopoverOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check className={cn("mr-2 h-4 w-4", genre === field.value ? "opacity-100" : "opacity-0")}/>
+                                                            {genre}
+                                                        </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                    <CommandGroup heading="Crear Nuevo">
+                                                        <CommandItem
+                                                            onSelect={() => {
+                                                                const newGenre = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
+                                                                if (newGenre) {
+                                                                    form.setValue("genre2", newGenre);
+                                                                    setGenre2PopoverOpen(false);
+                                                                }
+                                                            }}
+                                                        >
+                                                             <span className="mr-2 h-4 w-4" />
+                                                            <span>Crear el género que escribí</span>
+                                                        </CommandItem>
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormDescription>Crea fusiones exóticas (ej: Cumbia-Metal).</FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
                             />
                         ) : (
                             <FormField control={form.control} name="voice" render={({ field }) => (
@@ -792,7 +779,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             )}/>
                         )}
                     </div>
-                    {plan === 'master' && (
+                    {plan === 'master' && plan !== 'creator' && !plan.includes('artist') && (
                          <FormField control={form.control} name="voice" render={({ field }) => (
                             <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>
                                 {voiceOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
@@ -817,7 +804,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Instrumentación
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <FormControl><Input placeholder="Ej: Piano y cuerdas" {...field} disabled={plan === 'creator' || areAdvancedFieldsDisabled} /></FormControl>
                                             <FormMessage />
@@ -827,7 +814,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Ambiente (Mood)
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator' || areAdvancedFieldsDisabled}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent>
                                                 {theme.moods.map(mood => <SelectItem key={mood.value} value={mood.value}>{mood.label}</SelectItem>)}
@@ -839,7 +826,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <FormItem>
                                             <FormLabel className="flex items-center gap-2">
                                                 Tempo
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
+                                                <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
                                             </FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator' || areAdvancedFieldsDisabled}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select>
                                             <FormMessage />
@@ -858,21 +845,67 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                    <p className="md:col-span-3 text-sm text-muted-foreground -mb-4 font-bold text-accent-gold">Exclusivo Plan Maestro</p>
                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
                                         <FormField control={form.control} name="inspirationalArtist" render={({ field }) => (
-                                        <FormItem className="md:col-span-3">
-                                            <FormLabel className="flex items-center gap-2">
-                                                Estilo Inspiracional
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
-                                            </FormLabel>
-                                            <FormControl><Input placeholder="Ej: Bad Bunny, Ed Sheeran, Calibre 50..." {...field} disabled={plan !== 'master'} /></FormControl>
-                                            {areAdvancedFieldsDisabled && <FormDescription className="text-yellow-400">Cuando se usa un artista, la instrumentación, mood y tempo se infieren automáticamente para replicar su estilo.</FormDescription>}
-                                            <FormMessage />
-                                        </FormItem>
+                                            <FormItem className="md:col-span-3 flex flex-col">
+                                                <FormLabel className="flex items-center gap-2">
+                                                    Estilo Inspiracional
+                                                    <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
+                                                </FormLabel>
+                                                <Popover open={artistPopoverOpen} onOpenChange={setArtistPopoverOpen}>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                    <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal",!field.value && "text-muted-foreground")}>
+                                                        {field.value ? field.value : "Ej: Bad Bunny, Ed Sheeran..."}
+                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                    </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Busca o escribe un artista..." />
+                                                        <CommandList>
+                                                            <CommandEmpty>No se encontraron resultados. Escribe para usar este artista.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {artists.map((artist) => (
+                                                                <CommandItem
+                                                                    value={artist}
+                                                                    key={artist}
+                                                                    onSelect={(currentValue) => {
+                                                                        form.setValue("inspirationalArtist", currentValue === field.value ? "" : currentValue);
+                                                                        setArtistPopoverOpen(false);
+                                                                    }}
+                                                                >
+                                                                    <Check className={cn("mr-2 h-4 w-4", artist === field.value ? "opacity-100" : "opacity-0")}/>
+                                                                    {artist}
+                                                                </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                             <CommandGroup heading="Crear Nuevo">
+                                                                <CommandItem
+                                                                    onSelect={() => {
+                                                                        const newArtist = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
+                                                                        if (newArtist) {
+                                                                            form.setValue("inspirationalArtist", newArtist);
+                                                                            setArtistPopoverOpen(false);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <span className="mr-2 h-4 w-4" />
+                                                                    <span>Usar el artista que escribí</span>
+                                                                </CommandItem>
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                                </Popover>
+                                                {areAdvancedFieldsDisabled && <FormDescription className="text-yellow-400">Cuando se usa un artista, la instrumentación, mood y tempo se infieren automáticamente para replicar su estilo.</FormDescription>}
+                                                <FormMessage />
+                                            </FormItem>
                                         )}/>
                                         <FormField control={form.control} name="structure" render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel className="flex items-center gap-2">
                                                     Estructura de la Canción
-                                                    <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
+                                                    <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
                                                 </FormLabel>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select>
                                                 <FormMessage />
@@ -882,7 +915,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                             <FormItem>
                                                 <FormLabel className="flex items-center gap-2">
                                                     Final de la Canción
-                                                    <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
+                                                    <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
                                                 </FormLabel>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select>
                                                 <FormMessage />
@@ -956,3 +989,5 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
+
+    
