@@ -1,11 +1,12 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +26,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, Image as ImageIcon, Disc, Info } from "lucide-react";
-import { createSongAction } from "@/app/test-pago/actions";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2 } from "lucide-react";
+import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+import { Facebook } from "lucide-react";
 
 
 const songCreationSchema = z.object({
@@ -58,22 +61,27 @@ const songCreationSchema = z.object({
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
-type FormStep = "filling" | "upsell" | "loading" | "result";
+type FormStep = "filling" | "upsell" | "loading" | "review" | "result";
 type Plan = "creator" | "artist" | "master";
+
+const planDetails = {
+    creator: { revisions: 1 },
+    artist: { revisions: 2 },
+    master: { revisions: 3 },
+};
 
 const planOptions = {
     emotional: [
         { value: "creator", label: "Creador", price: "$249", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
-        { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum Digital"] },
+        { value: "artist", label: "Artista", price: "$499", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
         { value: "master", label: "Maestro", price: "$999", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
     ],
     corrido: [
         { value: "creator", label: "El Relato", price: "$249", features: ["Corrido completo (Bélico, etc.)", "Letra que narra tu hazaña", "1 Revisión de la letra", "Calidad profesional MP3"] },
-        { value: "artist", label: "La Leyenda", price: "$499", features: ["Todo lo de El Relato +", "2 Revisiones de letra y arreglos", "Control de Composición Avanzado", "Carátula de Álbum Digital"] },
+        { value: "artist", label: "La Leyenda", price: "$499", features: ["Todo lo de El Relato +", "2 Revisiones de letra y arreglos", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
         { value: "master", label: "El Patriarca", price: "$999", features: ["Todo lo de La Leyenda +", "3 Revisiones completas", "Audio WAV (Calidad Estudio)", "Pista instrumental para tus eventos", "Géneros y Fusiones personalizadas"] },
     ]
 };
-
 
 const famousArtistSuggestions = {
     emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
@@ -149,10 +157,15 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [formStep, setFormStep] = useState<FormStep>("filling");
   const [formData, setFormData] = useState<SongCreationFormValues | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("Estamos componiendo...");
   const [result, setResult] = useState<SongResult | null>(null);
+  const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
+  const [revisionsRemaining, setRevisionsRemaining] = useState(0);
+  const [revisionRequest, setRevisionRequest] = useState("");
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
   const [genreSearch, setGenreSearch] = useState("");
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
@@ -187,49 +200,83 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const plan = form.watch("plan");
 
   useEffect(() => {
-    // Update song type based on URL param
+    // This effect ensures the form values are correctly updated when URL params change
     const newSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
-    if (form.getValues("songType") !== newSongType) {
+    const newPlan = isValidPlan(planParam) ? planParam : "artist";
+    if (form.getValues("songType") !== newSongType || form.getValues("plan") !== newPlan) {
         form.reset({
             ...form.getValues(),
             songType: newSongType,
             genre: newSongType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
-            plan: isValidPlan(planParam) ? planParam : "artist",
+            plan: newPlan,
         });
-    }
-    
-    // Update plan based on URL param
-    const newPlan = isValidPlan(planParam) ? planParam : "artist";
-    if (form.getValues("plan") !== newPlan) {
-        form.setValue("plan", newPlan);
     }
   }, [songTypeParam, planParam, form]);
   
+  useEffect(() => {
+    // 15-second preview logic
+    const audio = audioRef.current;
+    const handleTimeUpdate = () => {
+        if (audio && audio.currentTime > 15) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    };
+    if (audio) {
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+    }
+    return () => {
+        if (audio) {
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+        }
+    };
+  }, [result]);
+
   const onSubmit = (data: SongCreationFormValues) => {
     setFormData(data);
     setFormStep("upsell");
   };
 
-  const handleFinalSubmit = async (collaboration: string | null) => {
+  const handleCreateSong = async (collaboration: string | null) => {
     if (!formData) return;
+    
     setLoading(true);
     setResult(null);
-    setFormStep("loading");
+    setAlbumArtUrl(null);
 
     const finalData = {
         ...formData,
         famousCollaboration: !!collaboration,
         styleVoice: collaboration || "",
     };
+    setFormData(finalData); // Store the final data including collaboration choice
     
+    setRevisionsRemaining(planDetails[finalData.plan].revisions);
+    
+    // Album Art Generation
+    const isPremium = finalData.plan === 'artist' || finalData.plan === 'master';
+    if (isPremium) {
+        setLoadingMessage("Creando una carátula única para tu álbum...");
+        setFormStep("loading");
+        const artResult = await createAlbumArtAction({ prompt: finalData.story });
+        if (artResult.imageUrl) {
+            setAlbumArtUrl(artResult.imageUrl);
+        } else {
+            toast({ title: "Error al crear carátula", description: artResult.error, variant: "destructive" });
+        }
+    }
+
+    // Song Generation
+    setLoadingMessage("Componiendo tu obra maestra...");
+    setFormStep("loading");
     try {
       const res = await createSongAction({ ...finalData, voiceType: finalData.voice });
       if (res.lyrics && res.audio) {
         setResult(res);
-        setFormStep("result");
+        setFormStep("review");
         toast({
-            title: "¡Tu canción ha sido creada!",
-            description: "Escúchala a continuación y procede al pago para descargarla.",
+            title: "¡Tu canción está lista para revisión!",
+            description: "Escúchala y solicita cambios si es necesario.",
         });
       } else {
         throw new Error(res.error || "La respuesta del servidor no fue la esperada.");
@@ -248,6 +295,37 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     }
   };
 
+  const handleRevisionSubmit = async () => {
+    if (!formData || !result || !revisionRequest) return;
+    
+    setLoading(true);
+    setLoadingMessage("Aplicando tus cambios a la canción...");
+    setFormStep("loading");
+
+    try {
+      const res = await reviseSongAction({
+        lyricsDraft: result.lyrics,
+        requests: revisionRequest,
+        songDetails: formData,
+      });
+
+      if (res.lyrics && res.audio) {
+        setResult(res);
+        setRevisionsRemaining(prev => prev - 1);
+        setRevisionRequest("");
+        setFormStep("review");
+        toast({ title: "¡Revisión completada!", description: "Aquí tienes la nueva versión de tu canción." });
+      } else {
+        throw new Error(res.error || "La respuesta del servidor no fue la esperada.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error al revisar la canción", description: String(error), variant: "destructive" });
+      setFormStep("review"); // Go back to review step on error
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (formStep === 'loading' || loading) {
     return (
@@ -255,34 +333,139 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <CardContent className="p-8">
             <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                <h2 className="font-headline text-3xl font-bold">Estamos componiendo...</h2>
-                <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles de tu obra maestra. Esto puede tardar un momento.</p>
+                <h2 className="font-headline text-3xl font-bold">{loadingMessage}</h2>
+                <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles. Esto puede tardar un momento.</p>
+                {albumArtUrl && (
+                    <div className="mt-4">
+                        <p className="text-sm font-semibold mb-2">Carátula generada:</p>
+                        <Image src={albumArtUrl} alt="Carátula del álbum generada" width={128} height={128} className="rounded-lg shadow-lg animate-pulse" />
+                    </div>
+                )}
             </div>
         </CardContent>
       </Card>
     );
   }
 
+  if (formStep === 'review' && result) {
+    const hasRevisionsLeft = revisionsRemaining > 0;
+    return (
+        <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
+            <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
+                <theme.Icon className="mx-auto h-12 w-12 text-primary" />
+                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión</CardTitle>
+                <CardDescription className="text-muted-foreground mt-2">Escucha un preview de 15 segundos y solicita cambios.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-8 space-y-8">
+                {albumArtUrl && (
+                    <div className="flex justify-center">
+                        <Image src={albumArtUrl} alt="Carátula del álbum" width={200} height={200} className="rounded-lg shadow-lg" />
+                    </div>
+                )}
+                <div className="bg-secondary/50 p-6 rounded-lg">
+                    <h3 className="font-headline text-2xl mb-4">Preview de Audio (15 seg)</h3>
+                    <audio ref={audioRef} controls src={result.audio} className="w-full">
+                        Tu navegador no soporta el audio.
+                    </audio>
+                </div>
+                <div className="bg-secondary/50 p-6 rounded-lg">
+                    <h3 className="font-headline text-2xl mb-4">Letra Generada</h3>
+                    <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed max-h-60 overflow-y-auto">{result.lyrics}</pre>
+                </div>
+
+                {hasRevisionsLeft ? (
+                    <div className="bg-secondary/50 p-6 rounded-lg space-y-4">
+                        <h3 className="font-headline text-2xl">Solicitar Cambios ({revisionsRemaining} restantes)</h3>
+                        <Textarea 
+                            placeholder="Ej: 'Cambia el coro para que mencione nuestro primer viaje.' o 'Haz el segundo verso más lento y nostálgico.'"
+                            value={revisionRequest}
+                            onChange={(e) => setRevisionRequest(e.target.value)}
+                            rows={4}
+                        />
+                        <Button onClick={handleRevisionSubmit} disabled={!revisionRequest}>Enviar Revisión (Cambio {planDetails[plan].revisions - revisionsRemaining + 1})</Button>
+                    </div>
+                ) : (
+                    <div className="text-center p-4 bg-yellow-900/20 rounded-md">
+                        <p className="font-semibold text-yellow-300">Has utilizado todas tus revisiones.</p>
+                    </div>
+                )}
+                
+                <div className="text-center space-y-4 pt-4 border-t">
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">
+                                ¡Me encanta! Aceptar y Continuar al Pago
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Si aceptas la canción ahora, perderás las <span className="font-bold">{revisionsRemaining}</span> revisiones restantes que te quedan. Esta acción no se puede deshacer.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => setFormStep('result')}>Sí, continuar</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+            </CardContent>
+        </Card>
+    );
+  }
+
   if (formStep === 'result' && result) {
+    const shareUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const shareText = `¡He creado una canción personalizada con IA en DualMuse! Escucha mi creación: ${shareUrl}`;
     return (
      <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
         <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
             <theme.Icon className="mx-auto h-12 w-12 text-primary" />
-            <CardTitle className="font-headline text-4xl font-bold mt-4">¡Tu Canción Está Lista!</CardTitle>
-            <CardDescription className="text-muted-foreground mt-2">Escucha el resultado y prepárate para compartirla.</CardDescription>
+            <CardTitle className="font-headline text-4xl font-bold mt-4">¡Tu Obra Maestra Final!</CardTitle>
+            <CardDescription className="text-muted-foreground mt-2">Aquí está la versión final de tu canción. ¡Lista para el mundo!</CardDescription>
         </CardHeader>
         <CardContent className="p-8 space-y-8">
+            {albumArtUrl && (
+                <div className="flex justify-center">
+                    <Image src={albumArtUrl} alt="Carátula final del álbum" width={250} height={250} className="rounded-lg shadow-2xl" />
+                </div>
+            )}
             <div className="bg-secondary/50 p-6 rounded-lg">
-                <h3 className="font-headline text-2xl mb-4">Audio</h3>
+                <h3 className="font-headline text-2xl mb-4">Audio Final</h3>
                 <audio controls src={result.audio} className="w-full">
                     Tu navegador no soporta el audio.
                 </audio>
             </div>
             <div className="bg-secondary/50 p-6 rounded-lg">
-                <h3 className="font-headline text-2xl mb-4">Letra</h3>
-                <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed">{result.lyrics}</pre>
+                <h3 className="font-headline text-2xl mb-4">Letra Final</h3>
+                <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed max-h-60 overflow-y-auto">{result.lyrics}</pre>
             </div>
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-6">
+                <div>
+                    <h3 className="font-headline text-xl mb-3">Comparte tu creación</h3>
+                    <div className="flex justify-center gap-4">
+                        <Button asChild variant="outline">
+                            <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
+                                <Twitter className="h-5 w-5" />
+                                <span className="sr-only">Twitter</span>
+                            </a>
+                        </Button>
+                         <Button asChild variant="outline">
+                            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
+                                <Facebook className="h-5 w-5" />
+                                <span className="sr-only">Facebook</span>
+                            </a>
+                        </Button>
+                         <Button asChild variant="outline">
+                            <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" data-action="share/whatsapp/share">
+                                <Share2 className="h-5 w-5" />
+                                <span className="sr-only">WhatsApp</span>
+                            </a>
+                        </Button>
+                    </div>
+                </div>
                 <Link href="/confirmacion" passHref>
                     <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
                 </Link>
@@ -328,11 +511,11 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 </Card>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button variant="ghost" size="lg" onClick={() => handleFinalSubmit(null)}>
+                    <Button variant="ghost" size="lg" onClick={() => handleCreateSong(null)}>
                         <Users className="mr-2 h-5 w-5" />
                         No, gracias. Usar voz estándar.
                     </Button>
-                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleFinalSubmit(collaborationChoice || "Voz de Famoso")}>
+                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice || "Voz de Famoso")}>
                         <Mic2 className="mr-2 h-5 w-5" />
                         Sí, agregar por $299 y generar
                     </Button>
@@ -584,7 +767,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
                                         {option.features.map(feature => (
                                             <li key={feature} className="flex items-start gap-2">
-                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
+                                                {feature.includes('Personalizados') || feature.includes('Fusiones') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
                                                 <span>{feature}</span>
                                             </li>
                                         ))}
@@ -610,3 +793,5 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
+
+    

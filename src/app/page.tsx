@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc, Wand2 } from 'lucide-react';
+import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc, Wand2, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -335,13 +335,13 @@ export default function Home() {
                                     <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$249</p>
+                                    <p className="font-bold text-4xl text-center mb-4">$199</p>
                                     <Separator />
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa y emotiva</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra 100% personalizada</span></li>
+                                         <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad profesional MP3</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
                                     </ul>
                                 </CardContent>
                                 <CardFooter className="flex-col gap-4 p-6">
@@ -363,13 +363,13 @@ export default function Home() {
                                     <CardDescription className="text-lg text-primary">El más popular para un resultado increíble.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$499</p>
+                                    <p className="font-bold text-4xl text-center mb-4">$399</p>
                                     <Separator />
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
+                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
                                         <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tempo)</span></li>
-                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
+                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital con IA</span></li>
                                     </ul>
                                 </CardContent>
                                 <CardFooter className="flex-col gap-4 p-6">
@@ -386,11 +386,11 @@ export default function Home() {
                                     <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$999</p>
+                                    <p className="font-bold text-4xl text-center mb-4">$799</p>
                                     <Separator />
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
+                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
                                         <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
                                         <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Géneros Musicales <span className="font-bold text-foreground">Personalizados y Exóticos</span></span></li>
@@ -418,8 +418,8 @@ export default function Home() {
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Corrido completo (Bélico, Tumbado, etc)</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra que narra tu hazaña</span></li>
+                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de la letra</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad de audio profesional MP3</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de la letra</span></li>
                                     </ul>
                                 </CardContent>
                                 <CardFooter className="flex-col gap-4 p-6">
@@ -445,9 +445,9 @@ export default function Home() {
                                     <Separator />
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de El Relato +</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y arreglos</span></li>
-                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tono)</span></li>
-                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
+                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y arreglos</span></li>
+                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición Avanzado</span></li>
+                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital con IA</span></li>
                                     </ul>
                                 </CardContent>
                                 <CardFooter className="flex-col gap-4 p-6">
@@ -468,7 +468,7 @@ export default function Home() {
                                     <Separator />
                                     <ul className="space-y-3 text-muted-foreground pt-4">
                                         <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de La Leyenda +</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> completas</span></li>
+                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> completas</span></li>
                                         <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
                                         <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> para tus eventos</span></li>
                                         <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Géneros y Fusiones</span> personalizadas</span></li>
@@ -554,5 +554,7 @@ export default function Home() {
     </div>
   );
 }
+
+    
 
     
