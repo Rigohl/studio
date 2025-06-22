@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc, Wand2, Edit } from 'lucide-react';
+import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc, Wand2, Edit, Gift } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -187,7 +187,7 @@ const PlanCard = ({ plan, songType }: { plan: Plan; songType: 'emotional' | 'cor
     return (
         <Card className={cn(
             "flex flex-col border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
-            isRecommended ? `relative shadow-xl border-border hover:${borderColor}` : "border-transparent hover:border-accent-gold/50"
+            isRecommended ? `relative shadow-xl hover:${borderColor}` : "border-transparent hover:border-accent-gold/50"
         )}>
             {isRecommended && (
                 <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
@@ -339,6 +339,40 @@ export default function Home() {
         </div>
       </section>
       
+      {/* Free Preview Section */}
+      <section className="py-20 sm:py-24 bg-gradient-to-r from-primary/10 via-background to-corridos-red/10">
+        <div className="container mx-auto px-4 text-center max-w-3xl">
+          <Gift className="mx-auto h-12 w-12 text-accent-gold mb-4" />
+          <h2 className="font-headline text-4xl font-bold">¿La Mejor Parte? Obtén un Adelanto Gratis</h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Queremos que sientas la magia antes de tomar cualquier decisión. Por el simple hecho de contarnos tu historia, te regalamos una muestra sin compromiso:
+          </p>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 text-left max-w-lg mx-auto">
+              <div className="flex items-start gap-4">
+                  <CheckCircle className="w-8 h-8 text-green-500 mt-1 shrink-0" />
+                  <div>
+                      <h3 className="font-semibold text-lg">Preview de 15 Segundos</h3>
+                      <p className="text-muted-foreground">Escucha el tono, la voz y el estilo de tu futura canción.</p>
+                  </div>
+              </div>
+              <div className="flex items-start gap-4">
+                  <CheckCircle className="w-8 h-8 text-green-500 mt-1 shrink-0" />
+                  <div>
+                      <h3 className="font-semibold text-lg">Carátula Conceptual</h3>
+                      <p className="text-muted-foreground">Visualiza el arte que representa la esencia de tu relato.</p>
+                  </div>
+              </div>
+          </div>
+          <div className="mt-12">
+            <Link href="/formularios" passHref>
+              <Button size="lg" className="bg-accent-gold text-accent-foreground font-bold hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-lg">
+                  Descubrir mi Preview Gratis
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Examples Section */}
        <section id="ejemplos" className="py-20 sm:py-24">
         <div className="container mx-auto px-4">
