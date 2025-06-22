@@ -23,7 +23,6 @@ const GenerateSongLyricsAndAudioInputSchema = z.object({
   genre: z.string().describe('The genre of the song.'),
   genre2: z.string().optional().describe('A second genre for an exotic fusion.'),
   voice: z.string().describe('The desired voice for the song.'),
-  voiceType: z.string().describe('The type of voice for the song (e.g., male, female).'),
   songType: z.string().describe('The type of song (Emotional song or Corridos bélicos)'),
   keywords: z.string().optional().describe('Keywords to be included in the song.'),
   referenceSong: z.string().optional().describe('A reference song for inspiration.'),

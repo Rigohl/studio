@@ -23,7 +23,6 @@ const SongDetailsSchema = z.object({
   story: z.string(),
   genre: z.string(),
   voice: z.string(),
-  voiceType: z.string(),
   songType: z.string(),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),

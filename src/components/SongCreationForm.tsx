@@ -324,7 +324,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     }
 
     try {
-      const res = await createSongAction({ ...finalData, voiceType: finalData.voice.split('-')[0] });
+      const res = await createSongAction(finalData);
       if (res.lyrics && res.audio) {
         setProgress(100);
         setTimeout(() => {
@@ -361,10 +361,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       const res = await reviseSongAction({
         lyricsDraft: result.lyrics,
         requests: revisionRequest,
-        songDetails: {
-            ...formData,
-            voiceType: formData.voice.split('-')[0],
-        },
+        songDetails: formData,
       });
 
       if (res.lyrics && res.audio) {
@@ -704,7 +701,6 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
-                    <FormField control={form.control} name="voiceType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
                     {renderFormFields()}
 
