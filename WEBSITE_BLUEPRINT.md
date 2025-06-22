@@ -1,4 +1,3 @@
-
 # Blueprint del Proyecto: DualMuse
 
 Este documento es una descripción exhaustiva y detallada de la plataforma web DualMuse. Sirve como un manual de referencia completo que cubre la arquitectura, el diseño, el contenido de texto, los efectos visuales y la lógica funcional de cada componente y página.
@@ -20,9 +19,9 @@ Estos son los principios de diseño que aplican a toda la plataforma para manten
   - **Rojo (`corridos-red`):** Identifica el universo de "Corridos".
 
 ### 1.2. Efectos y Microinteracciones Globales
-- **Transiciones:** Todos los cambios visuales (color, tamaño) son suaves y duran 0.2-0.3 segundos.
+- **Transiciones:** Todos los cambios visuales (color, tamaño) son suaves y duran 0.2-0.3 segundos (`transition-all`, `duration-300`).
 - **Efectos Hover (al pasar el ratón):**
-  - **Botones/Tarjetas:** Se elevan sutilmente (`translate-y-2`) o escalan (`scale-105`) con una sombra más pronunciada para dar retroalimentación visual.
+  - **Botones/Tarjetas:** Se elevan sutilmente (`hover:-translate-y-2`) o escalan (`hover:scale-105`) con una sombra más pronunciada (`hover:shadow-2xl`) para dar retroalimentación visual.
 - **Animaciones de Entrada:** Los elementos clave de las secciones se desvanecen hacia adentro (`fade-in`) y se deslizan sutilmente (`fade-in-down` o `fade-in-up`) para una aparición elegante.
 
 ---
@@ -122,6 +121,7 @@ Estos componentes aparecen en la mayoría de las páginas.
 #### a) Paso 1: El Formulario
 - **Encabezado:** Título e ícono cambian (Corazón/Calavera) según el `songType`.
 - **Campos de Texto:**
+  - **Correo Electrónico:** Campo para que el usuario reciba la canción.
   - **Para quién es:** Placeholder "Ej: Mi madre, Ana..." (Emocional) vs. "Ej: El Compa Juan..." (Corrido).
   - **De parte de quién:** Placeholder "Tu nombre".
   - **Apodo (opcional):** Placeholder "Ej: Chuy, La Güera...".
@@ -136,25 +136,26 @@ Estos componentes aparecen en la mayoría de las páginas.
     - **Instrumentación:** "Describe los instrumentos que imaginas..."
     - **Ambiente (Mood):** "Define la emoción principal..."
     - **Tempo:** "Marca el pulso de tu canción..."
+    - **Estilo Inspiracional (Solo Plan Maestro):** "Escribe un artista. Nos inspiraremos en su estilo musical, no en su voz."
     - (y así para cada campo, con texto adaptado al género).
 - **Selector de Planes (Radio Group):** Tres tarjetas que funcionan como botones de radio. La tarjeta seleccionada tiene un borde de color más grueso.
 
-#### b) Paso 2: Upsell
-- **Título:** "Dale un Estilo Único a tu Canción".
-- **Descripción:** "Por un costo adicional de $299, podemos usar un modelo avanzado para inspirarnos en el estilo vocal e instrumental de un artista famoso..."
+#### b) Paso 2: Upsell de Voz
+- **Título:** "Añade una Voz de Famoso (Opcional)".
+- **Descripción:** "Por un costo adicional de $299, podemos usar un modelo avanzado para inspirarnos en el estilo vocal de un artista famoso..."
 - **Contenido:** Botones con sugerencias ("Estilo Peso Pluma", etc.) y un campo de texto para escribir cualquier artista.
-- **Botones de Acción:** "No, gracias. Usar la voz estándar" y "Sí, agregar Estilo Famoso por $299".
+- **Botones de Acción:** "No, gracias. Usar la voz estándar" y "Sí, agregar Estilo de Voz por $299".
 
 #### c) Paso 3: Pantalla de Carga
 - **Visual:** Un ícono de loader que gira (`animate-spin`).
 - **Texto Dinámico:** Un `<h2>` que cambia cada 2.5 segundos con frases como "Analizando tu historia...", "Escribiendo la letra...", "Afinando los instrumentos...", etc.
 
 #### d) Paso 4: Revisión Interactiva
-- **Título:** "Paso de Revisión (Cambio X/Y)".
+- **Título:** "Paso de Revisión (Cambio X/Y)". Muestra el número de revisiones restantes según el plan.
 - **Carátula:** Si el plan lo incluye, se muestra una imagen generada.
 - **Audio:** Un reproductor de audio HTML5. El audio se detiene a los 15 segundos.
 - **Letra:** Un recuadro con la letra generada, con scroll si es muy larga.
-- **Formulario de Revisión:** Un `Textarea` con el placeholder "Ej: 'Cambia el coro para que mencione nuestro primer viaje...'" y un botón "Enviar Revisión".
+- **Formulario de Revisión:** Un `Textarea` con el placeholder "Ej: 'Cambia el coro para que mencione nuestro primer viaje...'" y un botón "Enviar Revisión". Esta sección se oculta si ya no quedan revisiones.
 
 #### e) Paso 5: Resultado Final
 - **Título:** "¡Tu Obra Maestra Final!".
