@@ -25,7 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -61,6 +61,37 @@ const famousArtistSuggestions = {
     corrido: ["Estilo Peso Pluma", "Estilo Natanael Cano", "Estilo Chalino Sánchez"],
 };
 
+const experienceThemes = {
+    emotional: {
+        Icon: Heart,
+        cardClass: "border-emotional-pink/50",
+        title: "Crea una Canción Emocional",
+        description: "Transforma tus sentimientos en una melodía que tocará el corazón.",
+        dedicatedToLabel: "¿Para quién es la canción?",
+        dedicatedToPlaceholder: "Ej: Mi madre, Ana, mi futuro esposo...",
+        requesterLabel: "¿De parte de quién?",
+        relationshipLabel: "Vuestra relación",
+        relationshipPlaceholder: "Ej: Novia, mejor amigo, hijo...",
+        storyLabel: "Vierte aquí tus recuerdos y emociones",
+        storyPlaceholder: "Describe vuestra historia, momentos especiales, anécdotas, lo que sientes...",
+        genrePlaceholder: "Ej: Balada Pop, Acústico, R&B, Cumbia romántica",
+    },
+    corrido: {
+        Icon: Skull,
+        cardClass: "border-corridos-red/50",
+        title: "Forja tu Corrido Bélico",
+        description: "Convierte hazañas y relatos de poder en una leyenda que resonará.",
+        dedicatedToLabel: "Protagonista del Corrido",
+        dedicatedToPlaceholder: "Ej: El Compa Juan, El Jefe, mi padre...",
+        requesterLabel: "¿Quién encarga el corrido?",
+        relationshipLabel: "Relación con el protagonista",
+        relationshipPlaceholder: "Ej: Socio, admirador, familiar...",
+        storyLabel: "Forja la leyenda. ¿Cuál es la hazaña?",
+        storyPlaceholder: "Narra la historia de superación, lealtad, poder o el evento clave que define al protagonista.",
+        genrePlaceholder: "Ej: Corrido Tumbado, Sierreño, Trap Corrido",
+    }
+};
+
 export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
   const { toast } = useToast();
   const [formStep, setFormStep] = useState<FormStep>("filling");
@@ -69,16 +100,19 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
   const [result, setResult] = useState<SongResult | null>(null);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
 
+  const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
+  const theme = experienceThemes[songType];
+
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
     defaultValues: {
-      songType: "emotional",
+      songType: songType,
       dedicatedTo: "",
       requester: "",
       nickname: "",
       relationship: "",
       story: "",
-      genre: "Balada Pop",
+      genre: songType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
       voice: "male",
       includeNames: false,
       keywords: "",
@@ -146,196 +180,198 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
 
   if (formStep === 'loading' || loading) {
     return (
-      <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-        <h2 className="font-headline text-3xl font-bold">Estamos componiendo...</h2>
-        <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles de tu obra maestra. Esto puede tardar un momento.</p>
-      </div>
+      <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
+        <CardContent className="p-8">
+            <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                <h2 className="font-headline text-3xl font-bold">Estamos componiendo...</h2>
+                <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles de tu obra maestra. Esto puede tardar un momento.</p>
+            </div>
+        </CardContent>
+      </Card>
     );
   }
 
   if (formStep === 'result' && result) {
     return (
-      <div className="space-y-8">
-        <div className="text-center">
-            <h2 className="font-headline text-4xl font-bold">¡Tu Canción Está Lista!</h2>
-            <p className="text-muted-foreground mt-2">Escucha el resultado y prepárate para compartirla.</p>
-        </div>
-        <div className="bg-secondary/50 p-6 rounded-lg">
-            <h3 className="font-headline text-2xl mb-4">Audio</h3>
-            <audio controls src={result.audio} className="w-full">
-                Tu navegador no soporta el audio.
-            </audio>
-        </div>
-        <div className="bg-secondary/50 p-6 rounded-lg">
-            <h3 className="font-headline text-2xl mb-4">Letra</h3>
-            <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed">{result.lyrics}</pre>
-        </div>
-        <div className="text-center space-y-4">
-            <Link href="/confirmacion" passHref>
-                <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
-            </Link>
-            <Button variant="outline" onClick={() => { setResult(null); setFormStep('filling'); form.reset(); }}>Crear otra canción</Button>
-        </div>
-      </div>
+     <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
+        <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
+            <theme.Icon className="mx-auto h-12 w-12 text-primary" />
+            <CardTitle className="font-headline text-4xl font-bold mt-4">¡Tu Canción Está Lista!</CardTitle>
+            <CardDescription className="text-muted-foreground mt-2">Escucha el resultado y prepárate para compartirla.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-8 space-y-8">
+            <div className="bg-secondary/50 p-6 rounded-lg">
+                <h3 className="font-headline text-2xl mb-4">Audio</h3>
+                <audio controls src={result.audio} className="w-full">
+                    Tu navegador no soporta el audio.
+                </audio>
+            </div>
+            <div className="bg-secondary/50 p-6 rounded-lg">
+                <h3 className="font-headline text-2xl mb-4">Letra</h3>
+                <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed">{result.lyrics}</pre>
+            </div>
+            <div className="text-center space-y-4">
+                <Link href="/confirmacion" passHref>
+                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
+                </Link>
+                <Button variant="outline" onClick={() => { setResult(null); setFormStep('filling'); form.reset(); }}>Crear otra canción</Button>
+            </div>
+        </CardContent>
+     </Card>
     );
   }
 
   if (formStep === 'upsell') {
     const suggestions = formData?.songType === 'corrido' ? famousArtistSuggestions.corrido : famousArtistSuggestions.emotional;
     return (
-        <div className="space-y-8 text-center animate-fade-in">
-            <Star className="mx-auto h-12 w-12 text-accent-gold" />
-            <h2 className="font-headline text-4xl font-bold">Un Toque de Estrella (Opcional)</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-                Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional.
-            </p>
-            
-            <Card className="max-w-lg mx-auto text-left">
-                <CardHeader>
-                    <CardTitle>Elige un Estilo de Voz</CardTitle>
-                    <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                        {suggestions.map(artist => (
-                            <Button key={artist} variant="outline" size="sm" onClick={() => setCollaborationChoice(artist)}>
-                                {artist}
-                            </Button>
-                        ))}
-                    </div>
-                    <Input 
-                        placeholder="O escribe el nombre de un artista..."
-                        value={collaborationChoice}
-                        onChange={(e) => setCollaborationChoice(e.target.value)}
-                    />
-                     <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal del artista para la interpretación.</p>
-                </CardContent>
-            </Card>
+      <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
+        <CardContent className="p-8">
+            <div className="space-y-8 text-center animate-fade-in">
+                <Star className="mx-auto h-12 w-12 text-accent-gold" />
+                <h2 className="font-headline text-4xl font-bold">Un Toque de Estrella (Opcional)</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional.
+                </p>
+                
+                <Card className="max-w-lg mx-auto text-left">
+                    <CardHeader>
+                        <CardTitle>Elige un Estilo de Voz</CardTitle>
+                        <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex flex-wrap gap-2">
+                            {suggestions.map(artist => (
+                                <Button key={artist} variant="outline" size="sm" onClick={() => setCollaborationChoice(artist)}>
+                                    {artist}
+                                </Button>
+                            ))}
+                        </div>
+                        <Input 
+                            placeholder="O escribe el nombre de un artista..."
+                            value={collaborationChoice}
+                            onChange={(e) => setCollaborationChoice(e.target.value)}
+                        />
+                         <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal del artista para la interpretación.</p>
+                    </CardContent>
+                </Card>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="ghost" size="lg" onClick={() => handleFinalSubmit(null)}>
-                    <Users className="mr-2 h-5 w-5" />
-                    No, gracias. Usar voz estándar.
-                </Button>
-                <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleFinalSubmit(collaborationChoice || "Voz de Famoso")}>
-                    <Mic2 className="mr-2 h-5 w-5" />
-                    Sí, agregar por $299 y generar
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button variant="ghost" size="lg" onClick={() => handleFinalSubmit(null)}>
+                        <Users className="mr-2 h-5 w-5" />
+                        No, gracias. Usar voz estándar.
+                    </Button>
+                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleFinalSubmit(collaborationChoice || "Voz de Famoso")}>
+                        <Mic2 className="mr-2 h-5 w-5" />
+                        Sí, agregar por $299 y generar
+                    </Button>
+                </div>
             </div>
-        </div>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="songType"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-lg font-headline">Tipo de Canción</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona el estilo principal" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="emotional">Canción Emocional</SelectItem>
-                  <SelectItem value="corrido">Corrido Bélico</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Card className={cn("max-w-4xl mx-auto shadow-2xl border-2", theme.cardClass)}>
+        <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
+            <theme.Icon className="mx-auto h-12 w-12 text-primary" />
+            <CardTitle className="font-headline text-4xl md:text-5xl font-bold mt-4">{theme.title}</CardTitle>
+            <CardDescription className="text-lg mt-2">
+                {theme.description}
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="p-4 sm:p-8">
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
-                <FormItem><FormLabel>¿Para quién es la canción?</FormLabel><FormControl><Input placeholder="Ej: Mi madre, Juan Pérez" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="requester" render={({ field }) => (
-                <FormItem><FormLabel>¿Quién la dedica?</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="nickname" render={({ field }) => (
-                <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="relationship" render={({ field }) => (
-                <FormItem><FormLabel>Parentesco o relación</FormLabel><FormControl><Input placeholder="Ej: Mejor amigo, Novia, Hermano" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-        </div>
-        
-        <FormField control={form.control} name="story" render={({ field }) => (
-            <FormItem><FormLabel>Cuéntanos la historia</FormLabel><FormControl><Textarea rows={5} placeholder="Describe la historia, anécdotas, sentimientos o eventos que quieres en la canción." {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
-        )}/>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormField control={form.control} name="genre" render={({ field }) => (
-                <FormItem><FormLabel>Género Musical</FormLabel><FormControl><Input placeholder="Ej: Balada Pop, Cumbia, Rock, Corrido Tumbado" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-            <FormField control={form.control} name="voice" render={({ field }) => (
-                <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-            )}/>
-        </div>
-
-        <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
-                <AccordionTrigger className="font-headline text-lg hover:no-underline">
-                  Detalles Avanzados (Planes Artista y Maestro)
-                  </AccordionTrigger>
-                <AccordionContent className="space-y-8 pt-4">
-                    <FormField control={form.control} name="keywords" render={({ field }) => (
-                        <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FormField control={form.control} name="dedicatedTo" render={({ field }) => (
+                        <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
-                    <FormField control={form.control} name="referenceSong" render={({ field }) => (
-                        <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl><FormMessage /></FormItem>
+                    <FormField control={form.control} name="requester" render={({ field }) => (
+                        <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
-                    <FormField control={form.control} name="includeNames" render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
+                    <FormField control={form.control} name="nickname" render={({ field }) => (
+                        <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
+                    <FormField control={form.control} name="relationship" render={({ field }) => (
+                        <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                </div>
+                
+                <FormField control={form.control} name="story" render={({ field }) => (
+                    <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
+                )}/>
 
-        <FormField
-          control={form.control}
-          name="plan"
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
-              <FormControl>
-                <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">
-                  {planOptions.map(option => (
-                    <FormItem key={option.value} className="flex-1">
-                      <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
-                      <Label
-                        htmlFor={option.value}
-                        className={cn(
-                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative",
-                            option.value === 'artist' && "border-accent-gold/50"
-                        )}
-                      >
-                        {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
-                        <span className="font-bold text-lg">{option.label}</span>
-                        <span className="text-sm font-medium">{option.description}</span>
-                        <span className="text-lg text-foreground font-bold mt-1">{option.price}</span>
-                      </Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <FormField control={form.control} name="genre" render={({ field }) => (
+                        <FormItem><FormLabel>Género Musical</FormLabel><FormControl><Input placeholder={theme.genrePlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField control={form.control} name="voice" render={({ field }) => (
+                        <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
+                    )}/>
+                </div>
+
+                <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
+                        <AccordionTrigger className="font-headline text-lg hover:no-underline">
+                          Detalles Avanzados (Planes Artista y Maestro)
+                          </AccordionTrigger>
+                        <AccordionContent className="space-y-8 pt-4">
+                            <FormField control={form.control} name="keywords" render={({ field }) => (
+                                <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="referenceSong" render={({ field }) => (
+                                <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="includeNames" render={({ field }) => (
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
+                            )}/>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+
+                <FormField
+                  control={form.control}
+                  name="plan"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-col md:flex-row gap-4">
+                          {planOptions.map(option => (
+                            <FormItem key={option.value} className="flex-1">
+                              <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
+                              <Label
+                                htmlFor={option.value}
+                                className={cn(
+                                    "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative",
+                                    option.value === 'artist' && "border-accent-gold/50"
+                                )}
+                              >
+                                {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
+                                <span className="font-bold text-lg">{option.label}</span>
+                                <span className="text-sm font-medium">{option.description}</span>
+                                <span className="text-lg text-foreground font-bold mt-1">{option.price}</span>
+                              </Label>
+                            </FormItem>
+                          ))}
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
-                  ))}
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
-          <Wand2 className="mr-2 h-5 w-5" />
-          Generar mi Canción
-        </Button>
-      </form>
-    </Form>
+                  )}
+                />
+                
+                <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
+                  <Wand2 className="mr-2 h-5 w-5" />
+                  Generar mi Canción
+                </Button>
+            </form>
+            </Form>
+        </CardContent>
+    </Card>
   );
 }
