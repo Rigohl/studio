@@ -58,6 +58,7 @@ const songCreationSchema = z.object({
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "result";
+type Plan = "creator" | "artist" | "master";
 
 const planOptions = [
     { value: "creator", label: "Creador", price: "$249", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
@@ -104,7 +105,9 @@ const experienceThemes = {
 const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
 const corridoGenres = ["Corrido Tumbado", "Corrido Bélico", "Corrido Alterado", "Corrido Progresivo", "Sierreño", "Trap Corrido", "Norteño-Corrido", "Banda-Corrido"];
 
-export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
+const isValidPlan = (plan: any): plan is Plan => ["creator", "artist", "master"].includes(plan);
+
+export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: string | null, planParam: string | null }) {
   const { toast } = useToast();
   const [formStep, setFormStep] = useState<FormStep>("filling");
   const [formData, setFormData] = useState<SongCreationFormValues | null>(null);
@@ -122,6 +125,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     resolver: zodResolver(songCreationSchema),
     defaultValues: {
       songType: songType,
+      plan: isValidPlan(planParam) ? planParam : "artist",
       dedicatedTo: "",
       requester: "",
       nickname: "",
@@ -137,7 +141,6 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       tempo: "",
       structure: "",
       ending: "",
-      plan: "artist",
       famousCollaboration: false,
       styleVoice: "",
     },
@@ -146,17 +149,23 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
   const plan = form.watch("plan");
 
   useEffect(() => {
-    if (songTypeParam) {
-      const newSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
-      if (form.getValues("songType") !== newSongType) {
+    // Update song type based on URL param
+    const newSongType = songTypeParam === "corrido" ? "corrido" : "emotional";
+    if (form.getValues("songType") !== newSongType) {
         form.reset({
-          ...form.getValues(),
-          songType: newSongType,
-          genre: newSongType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
+            ...form.getValues(),
+            songType: newSongType,
+            genre: newSongType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
+            plan: isValidPlan(planParam) ? planParam : "artist",
         });
-      }
     }
-  }, [songTypeParam, form]);
+    
+    // Update plan based on URL param
+    const newPlan = isValidPlan(planParam) ? planParam : "artist";
+    if (form.getValues("plan") !== newPlan) {
+        form.setValue("plan", newPlan);
+    }
+  }, [songTypeParam, planParam, form]);
   
   const onSubmit = (data: SongCreationFormValues) => {
     setFormData(data);
@@ -390,7 +399,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                                         value={genre}
                                         key={genre}
                                         onSelect={(currentValue) => {
-                                          form.setValue("genre", currentValue);
+                                          form.setValue("genre", genre === currentValue ? "" : currentValue);
                                           setGenrePopoverOpen(false);
                                           setGenreSearch("");
                                         }}
@@ -474,8 +483,10 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                       <FormControl>
                         <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {planOptions.map(option => (
-                            <FormItem key={option.value} className="flex-1">
-                              <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
+                            <FormItem key={option.value}>
+                              <FormControl>
+                                <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
+                              </FormControl>
                               <Label
                                 htmlFor={option.value}
                                 className={cn(
@@ -514,3 +525,5 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     </Card>
   );
 }
+
+    

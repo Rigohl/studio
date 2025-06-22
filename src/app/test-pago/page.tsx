@@ -20,10 +20,11 @@ function TestPagoFormLoader() {
 function TestPagoContent() {
   const searchParams = useSearchParams();
   const songType = searchParams.get("type");
+  const plan = searchParams.get("plan");
 
   return (
     <div className="container mx-auto py-12 px-4">
-        <SongCreationForm songTypeParam={songType} />
+        <SongCreationForm songTypeParam={songType} planParam={plan} />
     </div>
   );
 }
@@ -35,3 +36,5 @@ export default function TestPagoPage() {
     </Suspense>
   );
 }
+
+    

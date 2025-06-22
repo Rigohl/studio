@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { useEffect, useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 const processSteps = [
   {
@@ -311,92 +313,179 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <section id="precios" className="py-20 sm:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="font-headline text-4xl font-bold">Planes a tu Medida</h2>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Creamos la canción ideal para tu historia. Misma calidad, más beneficios.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
-            {/* Plan Creador */}
-            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
-              <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
-                <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-4 text-left p-6">
-                <p className="font-bold text-4xl text-center mb-4">$249</p>
-                 <Separator />
-                <ul className="space-y-3 text-muted-foreground pt-4">
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa (Emocional o Corrido)</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra 100% personalizada</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad profesional MP3</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex-col gap-4 p-6">
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/formularios?plan=creator">Empezar</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+        <section id="precios" className="py-20 sm:py-24">
+            <div className="container mx-auto px-4">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                    <h2 className="font-headline text-4xl font-bold">Planes a tu Medida</h2>
+                    <p className="mt-4 text-lg text-muted-foreground">
+                        Elige el universo sonoro para tu historia. Misma calidad, dos experiencias únicas.
+                    </p>
+                </div>
+                <Tabs defaultValue="emotional" className="max-w-6xl mx-auto">
+                    <TabsList className="grid w-full grid-cols-2 h-auto">
+                        <TabsTrigger value="emotional" className="py-2 text-base">Canciones Emocionales</TabsTrigger>
+                        <TabsTrigger value="corrido" className="py-2 text-base">Corridos</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="emotional" className="mt-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                            {/* Plan Creador Emocional */}
+                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
+                                    <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$249</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa y emotiva</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra 100% personalizada</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad profesional MP3</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild variant="outline" className="w-full">
+                                        <Link href="/test-pago?type=emotional&plan=creator">Empezar</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
 
-            {/* Plan Artista - Recommended */}
-            <Card className="flex flex-col border-2 border-accent-gold/80 relative shadow-xl transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
-              <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
-                  <div className="bg-accent-gold text-accent-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
-                      Recomendado
-                  </div>
-              </div>
-              <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Plan Artista</CardTitle>
-                <CardDescription className="text-lg text-accent-gold">El más popular para un resultado increíble.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-4 text-left p-6">
-                <p className="font-bold text-4xl text-center mb-4">$499</p>
-                <Separator />
-                <ul className="space-y-3 text-muted-foreground pt-4">
-                   <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
-                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
-                   <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tempo)</span></li>
-                   <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex-col gap-4 p-6">
-                <Button asChild className="w-full bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 shadow-lg">
-                  <Link href="/formularios?plan=artist">Empezar ahora</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+                            {/* Plan Artista Emocional - Recommended */}
+                            <Card className="flex flex-col border-2 border-primary/80 relative shadow-xl transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
+                                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                                    <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
+                                        Recomendado
+                                    </div>
+                                </div>
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">Plan Artista</CardTitle>
+                                    <CardDescription className="text-lg text-primary">El más popular para un resultado increíble.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$499</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
+                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tempo)</span></li>
+                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
+                                        <Link href="/test-pago?type=emotional&plan=artist">Empezar ahora</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
 
-            {/* Plan Maestro */}
-            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
-              <CardHeader className="text-center pt-8">
-                <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
-                <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-4 text-left p-6">
-                 <p className="font-bold text-4xl text-center mb-4">$999</p>
-                 <Separator />
-                <ul className="space-y-3 text-muted-foreground pt-4">
-                  <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
-                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
-                  <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
-                   <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Géneros Musicales <span className="font-bold text-foreground">Personalizados y Exóticos</span></span></li>
-                </ul>
-              </CardContent>
-              <CardFooter className="flex-col gap-4 p-6">
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/formularios?plan=master">Empezar</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
-      </section>
+                            {/* Plan Maestro Emocional */}
+                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
+                                    <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$999</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
+                                        <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
+                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Géneros Musicales <span className="font-bold text-foreground">Personalizados y Exóticos</span></span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild variant="outline" className="w-full">
+                                        <Link href="/test-pago?type=emotional&plan=master">Empezar</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="corrido" className="mt-8">
+                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+                            {/* Plan El Relato */}
+                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">El Relato</CardTitle>
+                                    <CardDescription className="text-lg">Tu historia contada con fuerza.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$249</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Corrido completo (Bélico, Tumbado, etc)</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra que narra tu hazaña</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad de audio profesional MP3</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de la letra</span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild variant="outline" className="w-full">
+                                        <Link href="/test-pago?type=corrido&plan=creator">Empezar</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+
+                            {/* Plan La Leyenda - Recommended */}
+                             <Card className="flex flex-col border-2 border-corridos-red/80 relative shadow-xl transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
+                                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                                    <div className="bg-corridos-red text-white px-4 py-1 rounded-full font-bold text-sm shadow-lg">
+                                        Recomendado
+                                    </div>
+                                </div>
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">La Leyenda</CardTitle>
+                                    <CardDescription className="text-lg text-corridos-red">Para forjar un corrido memorable.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$499</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de El Relato +</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y arreglos</span></li>
+                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tono)</span></li>
+                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild className="w-full bg-corridos-red text-white hover:bg-corridos-red/90 shadow-lg">
+                                        <Link href="/test-pago?type=corrido&plan=artist">Empezar ahora</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+
+                            {/* Plan El Patriarca */}
+                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
+                                <CardHeader className="text-center pt-8">
+                                    <CardTitle className="font-headline text-3xl">El Patriarca</CardTitle>
+                                    <CardDescription className="text-lg">La experiencia definitiva para un legado.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="flex-grow space-y-4 text-left p-6">
+                                    <p className="font-bold text-4xl text-center mb-4">$999</p>
+                                    <Separator />
+                                    <ul className="space-y-3 text-muted-foreground pt-4">
+                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de La Leyenda +</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> completas</span></li>
+                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
+                                        <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> para tus eventos</span></li>
+                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Géneros y Fusiones</span> personalizadas</span></li>
+                                    </ul>
+                                </CardContent>
+                                <CardFooter className="flex-col gap-4 p-6">
+                                    <Button asChild variant="outline" className="w-full">
+                                        <Link href="/test-pago?type=corrido&plan=master">Empezar</Link>
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </div>
+        </section>
+
 
       {/* Testimonials Section */}
       <section id="testimonials" className="py-20 sm:py-24 bg-secondary/30 overflow-hidden">
@@ -465,3 +554,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
