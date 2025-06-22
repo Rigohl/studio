@@ -12,37 +12,12 @@ import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import {toWav} from '@/lib/audio';
 import {z} from 'genkit';
-
-// Re-using the input schema from the main generation flow for consistency
-const SongDetailsSchema = z.object({
-  email: z.string().email(),
-  dedicatedTo: z.string(),
-  requester: z.string(),
-  nickname: z.string().optional(),
-  relationship: z.string(),
-  story: z.string(),
-  genre: z.string(),
-  voice: z.string(),
-  songType: z.string(),
-  keywords: z.string().optional(),
-  referenceSong: z.string().optional(),
-  styleVoice: z.string().optional(),
-  includeNames: z.boolean().optional(),
-  instrumentation: z.string().optional(),
-  mood: z.string().optional(),
-  tempo: z.string().optional(),
-  structure: z.string().optional(),
-  ending: z.string().optional(),
-  plan: z.string(),
-  famousCollaboration: z.boolean().optional(),
-  inspirationalArtist: z.string().optional(),
-});
-
+import { songCreationSchema, SongCreationFormValues } from '@/app/test-pago/actions';
 
 const IncorporateUserRequestsIntoSongInputSchema = z.object({
   lyricsDraft: z.string().describe('The initial draft of the song lyrics.'),
   requests: z.string().describe('Specific requests from the user for changing the song.'),
-  songDetails: SongDetailsSchema.describe("The original parameters of the song for context."),
+  songDetails: songCreationSchema.describe("The original parameters of the song for context."),
 });
 export type IncorporateUserRequestsIntoSongInput = z.infer<typeof IncorporateUserRequestsIntoSongInputSchema>;
 
@@ -87,6 +62,7 @@ Here is the original song context:
 {{#if songDetails.inspirationalArtist}}
 - Inspirational Style: {{{songDetails.inspirationalArtist}}}
 {{/if}}
+- Estilo vocal del borrador original (si aplica): {{#if songDetails.styleVoice}}Inspirado en {{songDetails.styleVoice}}{{else}}Voz estándar{{/if}}
 
 Here is the current draft of the lyrics:
 --- LYRICS DRAFT ---

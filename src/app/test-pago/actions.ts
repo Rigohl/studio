@@ -7,18 +7,18 @@ import { incorporateUserRequestsIntoSong, IncorporateUserRequestsIntoSongInput }
 
 import { z } from "zod";
 
-const songCreationSchema = z.object({
-  email: z.string().email(),
-  songType: z.string(),
-  dedicatedTo: z.string(),
-  requester: z.string(),
+export const songCreationSchema = z.object({
+  songType: z.enum(["emotional", "corrido"]),
+  email: z.string().email("Por favor, introduce un correo electrónico válido."),
+  dedicatedTo: z.string().min(1, "Este campo es requerido."),
+  requester: z.string().min(1, "Este campo es requerido."),
   nickname: z.string().optional(),
-  relationship: z.string(),
-  story: z.string(),
-  genre: z.string(),
+  relationship: z.string().min(1, "Este campo es requerido."),
+  story: z.string().min(20, "Cuéntanos más de la historia (mínimo 20 caracteres)."),
+  genre: z.string().min(1, "El género es requerido."),
   genre2: z.string().optional(),
-  voice: z.string(), 
-  includeNames: z.boolean().optional(),
+  voice: z.string({ required_error: "Debes seleccionar un tipo de voz." }),
+  includeNames: z.boolean().default(false).optional(),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
   instrumentation: z.string().optional(),
@@ -26,14 +26,15 @@ const songCreationSchema = z.object({
   tempo: z.string().optional(),
   structure: z.string().optional(),
   ending: z.string().optional(),
-  plan: z.string(),
+  plan: z.enum(["creator", "artist", "master"]),
+  inspirationalArtist: z.string().optional(),
   famousCollaboration: z.boolean().optional(),
   styleVoice: z.string().optional(),
-  inspirationalArtist: z.string().optional(),
 });
+export type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 
 
-export async function createSongAction(data: z.infer<typeof songCreationSchema>) {
+export async function createSongAction(data: SongCreationFormValues) {
   try {
     const validatedData = songCreationSchema.parse(data);
 

@@ -4,7 +4,6 @@
 import { useState, useEffect, useRef, ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -27,7 +26,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download, Music } from "lucide-react";
-import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
+import { createSongAction, createAlbumArtAction, reviseSongAction, songCreationSchema, SongCreationFormValues } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -37,45 +36,22 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { planDetails, revisionCounts, Plan } from "@/config/plans";
 import { Progress } from "@/components/ui/progress";
 
-
-const songCreationSchema = z.object({
-  songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
-  email: z.string().email("Por favor, introduce un correo electrónico válido."),
-  dedicatedTo: z.string().min(1, "Este campo es requerido."),
-  requester: z.string().min(1, "Este campo es requerido."),
-  nickname: z.string().optional(),
-  relationship: z.string().min(1, "Este campo es requerido."),
-  story: z.string().min(20, "Cuéntanos más de la historia (mínimo 20 caracteres)."),
-  genre: z.string().min(1, "El género es requerido."),
-  genre2: z.string().optional(),
-  voice: z.string({ required_error: "Debes seleccionar un tipo de voz." }),
-  includeNames: z.boolean().default(false),
-  keywords: z.string().optional(),
-  referenceSong: z.string().optional(),
-  instrumentation: z.string().optional(),
-  mood: z.string().optional(),
-  tempo: z.string().optional(),
-  structure: z.string().optional(),
-  ending: z.string().optional(),
-  plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
-  inspirationalArtist: z.string().optional(),
-});
-
-type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "review" | "result";
 type PlanValue = "creator" | "artist" | "master";
 
 
 const famousArtistSuggestions = {
-    emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
+    emotional: ["Ed Sheeran", "Adele", "Luis Miguel", "Coldplay", "Taylor Swift", "Sam Smith"],
     corrido: [
-        "Estilo Peso Pluma", 
-        "Estilo Natanael Cano", 
-        "Estilo Gerardo Ortiz", 
-        "Estilo El Komander",
-        "Estilo El de la Guitarra (Voz y Guitarra)",
-        "Estilo Chalino Sánchez"
+        "Peso Pluma", 
+        "Natanael Cano", 
+        "Gerardo Ortiz", 
+        "El Komander",
+        "El de la Guitarra (Voz y Guitarra)",
+        "Chalino Sánchez",
+        "Junior H",
+        "Fuerza Regida",
     ],
 };
 
@@ -188,15 +164,16 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [isRevising, setIsRevising] = useState(false);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   
-  // State for popovers
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
-  const [genre2PopoverOpen, setGenre2PopoverOpen] = useState(false);
-  const [artistPopoverOpen, setArtistPopoverOpen] = useState(false);
-
-  // State for search terms in comboboxes
   const [genreSearch, setGenreSearch] = useState("");
+
+  const [genre2PopoverOpen, setGenre2PopoverOpen] = useState(false);
   const [genre2Search, setGenre2Search] = useState("");
+
+  const [artistPopoverOpen, setArtistPopoverOpen] = useState(false);
   const [artistSearch, setArtistSearch] = useState("");
+  
+  const [currentPopover, setCurrentPopover] = useState<string | null>(null)
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -229,6 +206,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       structure: "",
       ending: "",
       inspirationalArtist: "",
+      famousCollaboration: false,
+      styleVoice: "",
     },
   });
 
@@ -644,14 +623,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <CardContent className="p-8">
             <div className="space-y-8 text-center animate-fade-in">
                 <Star className="mx-auto h-12 w-12 text-accent-gold" />
-                <h2 className="font-headline text-4xl font-bold">Añade una Voz de Famoso (Opcional)</h2>
+                <h2 className="font-headline text-4xl font-bold">¿Quieres que un Famoso Ayude?</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo avanzado para inspirarnos en el <span className="font-bold text-foreground">estilo vocal</span> de un artista famoso, dándole un toque aún más distintivo y profesional.
+                    Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos hacer que nuestro modelo de IA, entrenado con la voz del artista, se una a la producción para darle un toque aún más distintivo y profesional.
                 </p>
                 
                 <Card className="max-w-lg mx-auto text-left">
                     <CardHeader>
-                        <CardTitle>Elige un Estilo de Voz</CardTitle>
+                        <CardTitle>¿Qué famoso te gustaría escuchar?</CardTitle>
                         <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -676,9 +655,9 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                         <Users className="mr-2 h-5 w-5" />
                         No, gracias. Usar la voz estándar.
                     </Button>
-                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice || "Estilo Famoso")}>
+                    <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleCreateSong(collaborationChoice)}>
                         <Mic2 className="mr-2 h-5 w-5" />
-                        Sí, agregar Estilo de Voz por $299
+                        {collaborationChoice ? `Sí, invitar a ${collaborationChoice} por $299` : 'Sí, invitar a la colaboración por $299'}
                     </Button>
                 </div>
             </div>
@@ -701,8 +680,37 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <FormField control={form.control} name="songType" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+                     <FormField control={form.control} name="famousCollaboration" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
+                    <FormField control={form.control} name="styleVoice" render={({ field }) => ( <FormItem className="hidden"><FormControl><Input {...field} /></FormControl></FormItem> )}/>
 
-                    {renderFormFields()}
+
+                    {songType === 'corrido' ? (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <FormField control={form.control} name="dedicatedTo" render={({ field }) => ( <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                          <FormField control={form.control} name="requester" render={({ field }) => ( <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        </div>
+                        <FormField control={form.control} name="story" render={({ field }) => ( <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem> )}/>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Tu Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="Para enviarte la canción final" {...field} /></FormControl><FormDescription>No lo compartiremos con nadie.</FormDescription><FormMessage /></FormItem> )}/>
+                          <FormField control={form.control} name="nickname" render={({ field }) => ( <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        </div>
+                         <FormField control={form.control} name="relationship" render={({ field }) => ( <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                      </>
+                    ) : (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormField control={form.control} name="dedicatedTo" render={({ field }) => ( <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                            <FormField control={form.control} name="requester" render={({ field }) => ( <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <FormField control={form.control} name="email" render={({ field }) => ( <FormItem><FormLabel>Tu Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="Para enviarte la canción final" {...field} /></FormControl><FormDescription>No lo compartiremos con nadie.</FormDescription><FormMessage /></FormItem> )}/>
+                            <FormField control={form.control} name="nickname" render={({ field }) => ( <FormItem><FormLabel>Apodo (opcional)</FormLabel><FormControl><Input placeholder="Ej: Chuy, La Güera, Mi Sol" {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        </div>
+                        <FormField control={form.control} name="relationship" render={({ field }) => ( <FormItem><FormLabel>{theme.relationshipLabel}</FormLabel><FormControl><Input placeholder={theme.relationshipPlaceholder} {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                        <FormField control={form.control} name="story" render={({ field }) => ( <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem> )}/>
+                      </>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                        <FormField
@@ -711,10 +719,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                           render={({ field }) => (
                             <FormItem className="flex flex-col">
                               <FormLabel>Género Musical Principal</FormLabel>
-                                <Popover open={genrePopoverOpen} onOpenChange={(open) => {
-                                    setGenrePopoverOpen(open);
-                                    if (!open) setGenreSearch("");
-                                }}>
+                                <Popover open={currentPopover === 'genre'} onOpenChange={(open) => setCurrentPopover(open ? 'genre' : null)}>
                                 <PopoverTrigger asChild>
                                     <FormControl>
                                     <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal",!field.value && "text-muted-foreground")}>
@@ -723,8 +728,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     </Button>
                                     </FormControl>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                    <Command>
+                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
+                                    <Command shouldFilter={false}>
                                         <CommandInput 
                                             placeholder={plan === 'master' ? "Busca o crea un género..." : "Busca un género..."} 
                                             value={genreSearch}
@@ -732,16 +737,17 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         />
                                         <CommandList>
                                             <CommandEmpty>
-                                                 {plan === 'master' ? 'No se encontraron resultados.' : 'No se encontraron resultados.'}
+                                                 {'No se encontraron resultados.'}
                                             </CommandEmpty>
                                             <CommandGroup>
-                                                {genres.map((genre) => (
+                                                {genres.filter(g => g.toLowerCase().includes(genreSearch.toLowerCase())).map((genre) => (
                                                 <CommandItem
                                                     value={genre}
                                                     key={genre}
                                                     onSelect={() => {
-                                                        form.setValue("genre", genre === field.value ? "" : genre);
-                                                        setGenrePopoverOpen(false);
+                                                        form.setValue("genre", genre);
+                                                        setGenreSearch("");
+                                                        setCurrentPopover(null);
                                                     }}
                                                 >
                                                     <Check className={cn("mr-2 h-4 w-4", genre === field.value ? "opacity-100" : "opacity-0")}/>
@@ -753,9 +759,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 <CommandGroup heading="Crear Nuevo">
                                                      <CommandItem
                                                         value={genreSearch}
-                                                        onSelect={(currentValue) => {
-                                                            form.setValue("genre", currentValue);
-                                                            setGenrePopoverOpen(false);
+                                                        onSelect={() => {
+                                                            form.setValue("genre", genreSearch);
+                                                            setGenreSearch("");
+                                                            setCurrentPopover(null);
                                                         }}
                                                     >
                                                         <span className="mr-2 h-4 w-4" />
@@ -781,10 +788,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         Género de Fusión (Opcional)
                                         <Wand2 className="h-4 w-4 text-accent-gold" />
                                     </FormLabel>
-                                    <Popover open={genre2PopoverOpen} onOpenChange={(open) => {
-                                        setGenre2PopoverOpen(open);
-                                        if (!open) setGenre2Search("");
-                                    }}>
+                                    <Popover open={currentPopover === 'genre2'} onOpenChange={(open) => setCurrentPopover(open ? 'genre2' : null)}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal", !field.value && "text-muted-foreground")}>
@@ -793,8 +797,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                             </Button>
                                         </FormControl>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                             <Command>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
+                                             <Command shouldFilter={false}>
                                                 <CommandInput 
                                                     placeholder="Busca o crea un género..."
                                                     value={genre2Search}
@@ -803,13 +807,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 <CommandList>
                                                     <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                                                     <CommandGroup>
-                                                        {genres.map((genre) => (
+                                                        {genres.filter(g => g.toLowerCase().includes(genre2Search.toLowerCase())).map((genre) => (
                                                         <CommandItem
                                                             value={genre}
                                                             key={genre}
                                                             onSelect={() => {
-                                                                form.setValue("genre2", genre === field.value ? "" : genre);
-                                                                setGenre2PopoverOpen(false);
+                                                                form.setValue("genre2", genre);
+                                                                setGenre2Search("");
+                                                                setCurrentPopover(null);
                                                             }}
                                                         >
                                                             <Check className={cn("mr-2 h-4 w-4", genre === field.value ? "opacity-100" : "opacity-0")}/>
@@ -821,9 +826,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                         <CommandGroup heading="Crear Nuevo">
                                                             <CommandItem
                                                                 value={genre2Search}
-                                                                onSelect={(currentValue) => {
-                                                                    form.setValue("genre2", currentValue);
-                                                                    setGenre2PopoverOpen(false);
+                                                                onSelect={() => {
+                                                                    form.setValue("genre2", genre2Search);
+                                                                    setGenre2Search("");
+                                                                    setCurrentPopover(null);
                                                                 }}
                                                             >
                                                                 <span className="mr-2 h-4 w-4" />
@@ -919,10 +925,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                     Estilo Inspiracional
                                                     <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
                                                 </FormLabel>
-                                                <Popover open={artistPopoverOpen} onOpenChange={(open) => {
-                                                    setArtistPopoverOpen(open);
-                                                    if(!open) setArtistSearch("");
-                                                }}>
+                                                <Popover open={currentPopover === 'artist'} onOpenChange={(open) => setCurrentPopover(open ? 'artist' : null)}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                     <Button variant="outline" role="combobox" className={cn("w-full justify-between font-normal",!field.value && "text-muted-foreground")}>
@@ -931,8 +934,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                     </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                                    <Command>
+                                                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
+                                                    <Command shouldFilter={false}>
                                                         <CommandInput 
                                                           placeholder="Busca o escribe un artista..."
                                                           value={artistSearch}
@@ -941,13 +944,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                         <CommandList>
                                                             <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                                                             <CommandGroup>
-                                                                {artists.map((artist) => (
+                                                                {artists.filter(a => a.toLowerCase().includes(artistSearch.toLowerCase())).map((artist) => (
                                                                 <CommandItem
                                                                     value={artist}
                                                                     key={artist}
                                                                     onSelect={() => {
-                                                                        form.setValue("inspirationalArtist", artist === field.value ? "" : artist);
-                                                                        setArtistPopoverOpen(false);
+                                                                        form.setValue("inspirationalArtist", artist);
+                                                                        setArtistSearch("");
+                                                                        setCurrentPopover(null);
                                                                     }}
                                                                 >
                                                                     <Check className={cn("mr-2 h-4 w-4", artist === field.value ? "opacity-100" : "opacity-0")}/>
@@ -959,9 +963,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                                 <CommandGroup heading="Crear Nuevo">
                                                                     <CommandItem
                                                                         value={artistSearch}
-                                                                        onSelect={(currentValue) => {
-                                                                            form.setValue("inspirationalArtist", currentValue);
-                                                                            setArtistPopoverOpen(false);
+                                                                        onSelect={() => {
+                                                                            form.setValue("inspirationalArtist", artistSearch);
+                                                                            setArtistSearch("");
+                                                                            setCurrentPopover(null);
                                                                         }}
                                                                     >
                                                                         <span className="mr-2 h-4 w-4" />
