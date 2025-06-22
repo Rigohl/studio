@@ -391,13 +391,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     );
   }
 
-  if (formStep === 'review' && result) {
+  if (formStep === 'review' && result && formData) {
     const hasRevisionsLeft = revisionsRemaining > 0;
+    const currentPlanForReview = formData.plan;
     return (
         <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
             <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
                 <theme.Icon className="mx-auto h-12 w-12 text-primary" />
-                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión (Cambio {planDetails[plan].revisions - revisionsRemaining + 1}/{planDetails[plan].revisions})</CardTitle>
+                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión (Cambio {planDetails[currentPlanForReview].revisions - revisionsRemaining + 1}/{planDetails[currentPlanForReview].revisions})</CardTitle>
                 <CardDescription className="text-muted-foreground mt-2">Escucha un preview de 15 segundos y solicita cambios si lo necesitas.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-8">

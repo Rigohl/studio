@@ -88,6 +88,22 @@ const revisionPrompt = ai.definePrompt({
   name: 'reviseLyricsPrompt',
   input: {schema: IncorporateUserRequestsIntoSongInputSchema},
   output: {schema: z.object({ revisedLyrics: z.string() })},
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+       {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ],
+  },
   prompt: `You are a professional songwriter revising a song based on client feedback.
 Your goal is to intelligently incorporate the requested changes into the existing lyrics. Maintain the song's original tone, style, and core story as much as possible unless the request specifically asks to change it.
 

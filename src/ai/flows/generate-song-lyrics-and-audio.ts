@@ -53,6 +53,22 @@ const lyricsPrompt = ai.definePrompt({
   name: 'generateLyricsPrompt',
   input: {schema: GenerateSongLyricsAndAudioInputSchema},
   output: {schema: z.object({lyrics: z.string()})},
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+       {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+      },
+    ],
+  },
   prompt: `Eres un compositor experto y productor musical. Escribe una canción detallada basada en los siguientes parámetros.
 La canción es de tipo {{songType}}.
 Es del género {{genre}}.
