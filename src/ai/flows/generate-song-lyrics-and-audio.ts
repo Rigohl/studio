@@ -137,14 +137,14 @@ const generateSongLyricsAndAudioFlow = ai.defineFlow(
 
     // 2. Generate Audio from Lyrics using TTS
     const voiceMap: { [key: string]: string } = {
-      'male-deep': 'Rigel',
-      'male-standard': 'Algenib',
-      'male-youthful': 'Procyon',
-      'female-soft': 'Spica',
-      'female-standard': 'Achernar',
-      'female-energetic': 'Capella',
+      'male-deep': 'rasalgethi',
+      'male-standard': 'algenib',
+      'male-youthful': 'puck',
+      'female-soft': 'laomedeia',
+      'female-standard': 'achernar',
+      'female-energetic': 'schedar',
     };
-    const voiceName = voiceMap[input.voice] || 'Algenib'; // Default to Algenib
+    const voiceName = voiceMap[input.voice] || 'algenib'; // Default to algenib
 
     const {media} = await ai.generate({
       model: googleAI.model('gemini-2.5-flash-preview-tts'),

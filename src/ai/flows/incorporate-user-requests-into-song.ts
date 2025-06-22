@@ -120,7 +120,15 @@ const incorporateUserRequestsIntoSongFlow = ai.defineFlow(
     }
 
     // 2. Generate new audio from the revised lyrics
-    const voiceName = input.songDetails.voice === 'female' ? 'Achernar' : 'Algenib';
+    const voiceMap: { [key: string]: string } = {
+      'male-deep': 'rasalgethi',
+      'male-standard': 'algenib',
+      'male-youthful': 'puck',
+      'female-soft': 'laomedeia',
+      'female-standard': 'achernar',
+      'female-energetic': 'schedar',
+    };
+    const voiceName = voiceMap[input.songDetails.voice] || 'algenib';
 
     const { media } = await ai.generate({
       model: googleAI.model('gemini-2.5-flash-preview-tts'),
