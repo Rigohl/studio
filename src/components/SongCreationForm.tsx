@@ -35,6 +35,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import { planDetails, revisionCounts, Plan } from "@/config/plans";
+import { Progress } from "@/components/ui/progress";
 
 
 const songCreationSchema = z.object({
@@ -179,6 +180,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [formData, setFormData] = useState<SongCreationFormValues | null>(null);
   const [loading, setLoading] = useState(false);
   const [currentLoadingMessage, setCurrentLoadingMessage] = useState(loadingMessages[0]);
+  const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<SongResult | null>(null);
   const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
   const [revisionsRemaining, setRevisionsRemaining] = useState(0);
@@ -276,10 +278,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
    useEffect(() => {
       if (formStep === 'loading') {
         let i = 0;
+        setProgress(10);
         setCurrentLoadingMessage(loadingMessages[i]);
         const interval = setInterval(() => {
-          i = (i + 1) % loadingMessages.length;
-          setCurrentLoadingMessage(loadingMessages[i]);
+          i++;
+          if (i < loadingMessages.length) {
+            setCurrentLoadingMessage(loadingMessages[i]);
+            setProgress(10 + (i * (85 / loadingMessages.length)));
+          }
         }, 2500);
         return () => clearInterval(interval);
       }
@@ -320,12 +326,15 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     try {
       const res = await createSongAction({ ...finalData, voiceType: finalData.voice.split('-')[0] });
       if (res.lyrics && res.audio) {
-        setResult(res);
-        setFormStep("review");
-        toast({
-            title: "¡Tu canción está lista para revisión!",
-            description: "Escúchala y solicita cambios si es necesario.",
-        });
+        setProgress(100);
+        setTimeout(() => {
+            setResult(res);
+            setFormStep("review");
+            toast({
+                title: "¡Tu canción está lista para revisión!",
+                description: "Escúchala y solicita cambios si es necesario.",
+            });
+        }, 500);
       } else {
         throw new Error(res.error || "La respuesta del servidor no fue la esperada.");
       }
@@ -458,9 +467,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     return (
       <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
         <CardContent className="p-8">
-            <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
+            <div className="text-center p-16 flex flex-col items-center justify-center space-y-6 h-[50vh]">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
                 <h2 className="font-headline text-3xl font-bold">{currentLoadingMessage}</h2>
+                <div className="w-full max-w-md">
+                   <Progress value={progress} className="w-full" />
+                   <p className="text-sm text-muted-foreground mt-2">{Math.round(progress)}% completado</p>
+                </div>
                 <p className="text-muted-foreground">La magia toma su tiempo. Estamos creando algo único para ti.</p>
                 {albumArtUrl && (
                     <div className="mt-4">
@@ -1056,5 +1069,3 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
-
-    
