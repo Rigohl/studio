@@ -265,7 +265,7 @@ export default function Home() {
           </p>
           <Link href="/formularios" passHref>
             <Button size="lg" className="bg-accent-gold text-accent-foreground font-bold hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-lg animate-fade-in">
-                Crear mi Canción
+                Descubrir mi Preview Gratis
             </Button>
           </Link>
         </div>
