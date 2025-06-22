@@ -21,6 +21,7 @@ const GenerateSongLyricsAndAudioInputSchema = z.object({
   relationship: z.string().describe('The relationship of the requester to the dedicatee.'),
   story: z.string().describe('The story or background for the song.'),
   genre: z.string().describe('The genre of the song.'),
+  genre2: z.string().optional().describe('A second genre for an exotic fusion.'),
   voice: z.string().describe('The desired voice for the song.'),
   voiceType: z.string().describe('The type of voice for the song (e.g., male, female).'),
   songType: z.string().describe('The type of song (Emotional song or Corridos bélicos)'),
@@ -71,7 +72,11 @@ const lyricsPrompt = ai.definePrompt({
   },
   prompt: `Eres un compositor experto y productor musical. Escribe una canción detallada basada en los siguientes parámetros.
 La canción es de tipo {{songType}}.
+{{#if genre2}}
+Es una fusión exótica de los géneros {{genre}} y {{genre2}}.
+{{else}}
 Es del género {{genre}}.
+{{/if}}
 Está dedicada a {{dedicatedTo}}{{#if nickname}} (apodo: {{nickname}}){{/if}}, de parte de {{requester}}. Su relación es de {{relationship}}.
 
 La historia detrás de la canción es fundamental: {{{story}}}
@@ -81,23 +86,25 @@ Asegúrate de incluir los nombres "{{dedicatedTo}}" y "{{requester}}" en la letr
 {{/if}}
 
 Parámetros de composición avanzada:
-{{#if mood}}
-- El ambiente (mood) de la canción debe ser: {{{mood}}}.
+{{#if inspirationalArtist}}
+- Estilo Inspiracional: La instrumentación y el ambiente general de la canción deben inspirarse fuertemente en el estilo de {{{inspirationalArtist}}}. IMPORTANTE: No imites la voz, solo el estilo musical, los arreglos y la producción. Ignora las siguientes instrucciones de mood, tempo e instrumentación si están presentes y básate solo en el artista.
+{{else}}
+  {{#if mood}}
+  - El ambiente (mood) de la canción debe ser: {{{mood}}}.
+  {{/if}}
+  {{#if tempo}}
+  - El tempo de la canción debe ser: {{{tempo}}}.
+  {{/if}}
+  {{#if instrumentation}}
+  - La instrumentación principal debe incluir: {{{instrumentation}}}.
+  {{/if}}
 {{/if}}
-{{#if tempo}}
-- El tempo de la canción debe ser: {{{tempo}}}.
-{{/if}}
-{{#if instrumentation}}
-- La instrumentación principal debe incluir: {{{instrumentation}}}.
-{{/if}}
+
 {{#if structure}}
 - La estructura de la canción debe seguir este formato: {{{structure}}}.
 {{/if}}
 {{#if ending}}
 - El final de la canción debe ser: {{{ending}}}.
-{{/if}}
-{{#if inspirationalArtist}}
-- Estilo Inspiracional: La instrumentación y el ambiente general de la canción deben inspirarse fuertemente en el estilo de {{{inspirationalArtist}}}. IMPORTANTE: No imites la voz, solo el estilo musical, los arreglos y la producción.
 {{/if}}
 
 Inspiración y Estilo:
@@ -129,7 +136,15 @@ const generateSongLyricsAndAudioFlow = ai.defineFlow(
     }
 
     // 2. Generate Audio from Lyrics using TTS
-    const voiceName = input.voice === 'female' ? 'Achernar' : 'Algenib';
+    const voiceMap: { [key: string]: string } = {
+      'male-deep': 'Rigel',
+      'male-standard': 'Algenib',
+      'male-youthful': 'Procyon',
+      'female-soft': 'Spica',
+      'female-standard': 'Achernar',
+      'female-energetic': 'Capella',
+    };
+    const voiceName = voiceMap[input.voice] || 'Algenib'; // Default to Algenib
 
     const {media} = await ai.generate({
       model: googleAI.model('gemini-2.5-flash-preview-tts'),

@@ -26,7 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download, Music } from "lucide-react";
 import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,8 @@ const songCreationSchema = z.object({
   relationship: z.string().min(1, "Este campo es requerido."),
   story: z.string().min(20, "Cuéntanos más de la historia (mínimo 20 caracteres)."),
   genre: z.string().min(1, "El género es requerido."),
-  voice: z.enum(["male", "female"], { required_error: "Debes seleccionar un tipo de voz." }),
+  genre2: z.string().optional(),
+  voice: z.string({ required_error: "Debes seleccionar un tipo de voz." }),
   includeNames: z.boolean().default(false),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
@@ -99,7 +100,7 @@ const experienceThemes = {
             { value: "inspirador", label: "Inspirador" },
         ],
         tooltips: {
-            instrumentation: "Describe los instrumentos que imaginas. Ej: 'Piano y cuerdas' para una balada, 'Guitarra acústica y un beat suave' para algo pop.",
+            instrumentation: "Impacto: Pocos instrumentos (ej: piano solo) crean un ambiente íntimo y personal. Muchos (ej: orquesta) dan un toque épico y grandioso. Esto define la paleta sonora de tu canción.",
             mood: "Define la emoción principal. Esto guiará la melodía y la armonía para evocar el sentimiento correcto.",
             tempo: "Marca el pulso de tu canción. 'Lento' para una balada introspectiva, 'Medio' para un ritmo pop, o 'Rápido' para una canción enérgica.",
             structure: "Define el viaje musical. 'Clásica' (verso-coro) es ideal para un estribillo pegadizo. 'Narrativa' es perfecta para contar una historia cronológica.",
@@ -127,7 +128,7 @@ const experienceThemes = {
             { value: "de-respeto", label: "De Respeto" },
         ],
         tooltips: {
-            instrumentation: "Describe los instrumentos clave para el sonido del corrido. Ej: 'Acordeón, bajo sexto, tololoche'.",
+            instrumentation: "Impacto: Un solo instrumento (ej: guitarra) da un toque crudo y personal. Una banda completa (acordeón, bajo sexto) da una sensación de poder y presencia. Define el arsenal sonoro de tu corrido.",
             mood: "Elige el tono de la historia. Esto define si el corrido sonará como una advertencia, una celebración o un recuerdo.",
             tempo: "Define el ritmo del corrido. 'Lento' para un tono narrativo, 'Medio' para un paso firme, o 'Rápido' para una sensación de acción.",
             structure: "Define cómo se contará la hazaña. 'Clásica' (verso-coro) para un mensaje central. 'Narrativa' cuenta la historia de principio a fin, como una leyenda.",
@@ -138,6 +139,16 @@ const experienceThemes = {
 
 const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
 const corridoGenres = ["Corrido Tumbado", "Corrido Bélico", "Corrido Alterado", "Corrido Progresivo", "Sierreño", "Trap Corrido", "Norteño-Corrido", "Banda-Corrido"];
+
+const voiceOptions = [
+  { value: "male-deep", label: "Masculina - Profunda" },
+  { value: "male-standard", label: "Masculina - Estándar" },
+  { value: "male-youthful", label: "Masculina - Juvenil" },
+  { value: "female-soft", label: "Femenina - Suave" },
+  { value: "female-standard", label: "Femenina - Estándar" },
+  { value: "female-energetic", label: "Femenina - Enérgica" },
+];
+
 const loadingMessages = [
     "Analizando tu historia...",
     "Consultando a los compositores de IA...",
@@ -173,6 +184,9 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
   const [genreSearch, setGenreSearch] = useState("");
+  const [genre2PopoverOpen, setGenre2PopoverOpen] = useState(false);
+  const [genre2Search, setGenre2Search] = useState("");
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
@@ -192,7 +206,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       relationship: "",
       story: "",
       genre: songType === 'corrido' ? "Corrido Tumbado" : "Balada Pop",
-      voice: "male",
+      genre2: "",
+      voice: "male-standard",
       includeNames: false,
       keywords: "",
       referenceSong: "",
@@ -206,6 +221,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   });
 
   const plan = form.watch("plan");
+  const inspirationalArtistValue = form.watch("inspirationalArtist");
+  const areAdvancedFieldsDisabled = plan === 'master' && !!inspirationalArtistValue;
 
   useEffect(() => {
     // This effect ensures the form values are correctly updated when URL params change
@@ -292,7 +309,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     }
 
     try {
-      const res = await createSongAction({ ...finalData, voiceType: finalData.voice });
+      const res = await createSongAction({ ...finalData, voiceType: finalData.voice.split('-')[0] });
       if (res.lyrics && res.audio) {
         setResult(res);
         setFormStep("review");
@@ -328,7 +345,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         requests: revisionRequest,
         songDetails: {
             ...formData,
-            voiceType: formData.voice, // Ensure voiceType is passed
+            voiceType: formData.voice.split('-')[0], // Ensure voiceType is passed
         },
       });
 
@@ -382,9 +399,10 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   }
 
   if (formStep === 'review' && result && formData) {
+    const totalRevisions = revisionCounts[formData.plan as PlanValue];
     const hasRevisionsLeft = revisionsRemaining > 0;
-    const totalRevisions = revisionCounts[formData.plan];
     const revisionsUsed = totalRevisions - revisionsRemaining;
+
 
     return (
         <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
@@ -625,13 +643,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                         <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
                     )}/>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                        <FormField
                           control={form.control}
                           name="genre"
                           render={({ field }) => (
                             <FormItem className="flex flex-col">
-                              <FormLabel>Género Musical</FormLabel>
+                              <FormLabel>Género Musical Principal</FormLabel>
                               <Popover open={genrePopoverOpen} onOpenChange={setGenrePopoverOpen}>
                                 <PopoverTrigger asChild>
                                   <FormControl>
@@ -666,6 +684,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                       <CommandEmpty>
                                         {plan === 'master' && genreSearch.length > 0 ? (
                                           <CommandItem
+                                            className="cursor-pointer"
                                             onSelect={() => {
                                               form.setValue("genre", genreSearch);
                                               setGenrePopoverOpen(false);
@@ -704,25 +723,90 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                   </Command>
                                 </PopoverContent>
                               </Popover>
-                               <FormDescription>
-                                 {plan === 'master'
-                                   ? 'Puedes elegir de la lista o escribir un género personalizado.'
-                                   : 'Elige un género de la lista. Plan Maestro requerido para géneros personalizados.'}
-                               </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        <FormField control={form.control} name="voice" render={({ field }) => (
-                            <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="male">Masculina</SelectItem><SelectItem value="female">Femenina</SelectItem></SelectContent></Select><FormMessage /></FormItem>
-                        )}/>
+                         {plan === 'master' ? (
+                            <FormField
+                            control={form.control}
+                            name="genre2"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel className="flex items-center gap-2">
+                                    Género de Fusión (Opcional)
+                                    <Wand2 className="h-4 w-4 text-accent-gold" />
+                                </FormLabel>
+                                <Popover open={genre2PopoverOpen} onOpenChange={setGenre2PopoverOpen}>
+                                    <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className={cn("w-full justify-between font-normal", !field.value && "text-muted-foreground")}
+                                        >
+                                        {field.value ? field.value : "Selecciona para fusionar..."}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                    <Command value={genre2Search} onValueChange={setGenre2Search} filter={(value, search) => value.toLowerCase().includes(search.toLowerCase()) ? 1 : 0}>
+                                        <CommandInput placeholder="Busca o crea un género..."/>
+                                        <CommandList>
+                                        <CommandEmpty>
+                                            <CommandItem className="cursor-pointer" onSelect={() => {
+                                                form.setValue("genre2", genre2Search);
+                                                setGenre2PopoverOpen(false);
+                                                setGenre2Search("");
+                                            }}>
+                                                <Check className="mr-2 h-4 w-4 opacity-0" />
+                                                Crear: "{genre2Search}"
+                                            </CommandItem>
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                            {genres.map((genre) => (
+                                            <CommandItem value={genre} key={genre} onSelect={() => {
+                                                form.setValue("genre2", genre === field.value ? "" : genre);
+                                                setGenre2PopoverOpen(false);
+                                                setGenre2Search("");
+                                            }}>
+                                                <Check className={cn("mr-2 h-4 w-4", field.value === genre ? "opacity-100" : "opacity-0")} />
+                                                {genre}
+                                            </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        ) : (
+                            <FormField control={form.control} name="voice" render={({ field }) => (
+                                <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>
+                                    {voiceOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                                </SelectContent></Select><FormMessage /></FormItem>
+                            )}/>
+                        )}
                     </div>
+                    {plan === 'master' && (
+                         <FormField control={form.control} name="voice" render={({ field }) => (
+                            <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>
+                                {voiceOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+                            </SelectContent></Select><FormMessage /></FormItem>
+                        )}
+                    />
+                    )}
+
 
                     <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
                             <AccordionTrigger className="font-headline text-lg hover:no-underline">
                               <div className="flex items-center gap-2">
-                                <Wand2 className="h-5 w-5 text-accent-gold" />
+                                <Music className="h-5 w-5 text-accent-gold" />
                                 <span>Detalles Avanzados</span>
                                 {plan !== 'creator' ? null : <span className="text-xs font-normal bg-muted text-muted-foreground px-2 py-1 rounded-full">Planes Artista y Maestro</span>}
                               </div>
@@ -735,7 +819,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 Instrumentación
                                                 <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.instrumentation}</p></TooltipContent></Tooltip>
                                             </FormLabel>
-                                            <FormControl><Input placeholder="Ej: Acordeón, bajo sexto, tololoche" {...field} disabled={plan === 'creator'} /></FormControl>
+                                            <FormControl><Input placeholder="Ej: Piano y cuerdas" {...field} disabled={plan === 'creator' || areAdvancedFieldsDisabled} /></FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -745,7 +829,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 Ambiente (Mood)
                                                 <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.mood}</p></TooltipContent></Tooltip>
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator' || areAdvancedFieldsDisabled}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un ambiente" /></SelectTrigger></FormControl><SelectContent>
                                                 {theme.moods.map(mood => <SelectItem key={mood.value} value={mood.value}>{mood.label}</SelectItem>)}
                                             </SelectContent></Select>
                                             <FormMessage />
@@ -757,7 +841,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 Tempo
                                                 <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.tempo}</p></TooltipContent></Tooltip>
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator'}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan === 'creator' || areAdvancedFieldsDisabled}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona el tempo" /></SelectTrigger></FormControl><SelectContent><SelectItem value="lento">Lento</SelectItem><SelectItem value="medio">Medio</SelectItem><SelectItem value="rapido">Rápido</SelectItem></SelectContent></Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}/>
@@ -770,38 +854,41 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     )}/>
                                </div>
 
-                               <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 border-t", plan !== 'master' && 'hidden')}>
-                                   <p className="md:col-span-3 text-sm text-muted-foreground -mb-4">Exclusivo Plan Maestro</p>
-                                    <FormField control={form.control} name="inspirationalArtist" render={({ field }) => (
-                                      <FormItem>
-                                          <FormLabel className="flex items-center gap-2">
-                                              Estilo Inspiracional
-                                              <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista como referencia. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
-                                          </FormLabel>
-                                          <FormControl><Input placeholder="Ej: Bad Bunny, Ed Sheeran, Calibre 50..." {...field} disabled={plan !== 'master'} /></FormControl>
-                                          <FormMessage />
-                                      </FormItem>
-                                    )}/>
-                                    <FormField control={form.control} name="structure" render={({ field }) => (
-                                        <FormItem>
+                               <div className={cn("pt-4 border-t", plan !== 'master' && 'hidden')}>
+                                   <p className="md:col-span-3 text-sm text-muted-foreground -mb-4 font-bold text-accent-gold">Exclusivo Plan Maestro</p>
+                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+                                        <FormField control={form.control} name="inspirationalArtist" render={({ field }) => (
+                                        <FormItem className="md:col-span-3">
                                             <FormLabel className="flex items-center gap-2">
-                                                Estructura de la Canción
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
+                                                Estilo Inspiracional
+                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
                                             </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select>
+                                            <FormControl><Input placeholder="Ej: Bad Bunny, Ed Sheeran, Calibre 50..." {...field} disabled={plan !== 'master'} /></FormControl>
+                                            {areAdvancedFieldsDisabled && <FormDescription className="text-yellow-400">Cuando se usa un artista, la instrumentación, mood y tempo se infieren automáticamente para replicar su estilo.</FormDescription>}
                                             <FormMessage />
                                         </FormItem>
-                                    )}/>
-                                    <FormField control={form.control} name="ending" render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel className="flex items-center gap-2">
-                                                Final de la Canción
-                                                <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
-                                            </FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}/>
+                                        )}/>
+                                        <FormField control={form.control} name="structure" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="flex items-center gap-2">
+                                                    Estructura de la Canción
+                                                    <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.structure}</p></TooltipContent></Tooltip>
+                                                </FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Define la estructura" /></SelectTrigger></FormControl><SelectContent><SelectItem value="clasica">Clásica (verso-coro-verso-coro)</SelectItem><SelectItem value="narrativa">Narrativa (historia lineal)</SelectItem><SelectItem value="progresiva">Progresiva (sin coro repetido)</SelectItem></SelectContent></Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="ending" render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="flex items-center gap-2">
+                                                    Final de la Canción
+                                                    <Tooltip><TooltipTrigger asChild><button type="button"><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">{theme.tooltips.ending}</p></TooltipContent></Tooltip>
+                                                </FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={plan !== 'master'}><FormControl><SelectTrigger><SelectValue placeholder="Elige un final" /></SelectTrigger></FormControl><SelectContent><SelectItem value="abrupto">Final abrupto</SelectItem><SelectItem value="fade-out">Fade out (desvanecido)</SelectItem><SelectItem value="epico-instrumental">Final épico con instrumentación</SelectItem></SelectContent></Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}/>
+                                   </div>
                                </div>
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
                                  <FormField control={form.control} name="referenceSong" render={({ field }) => (
