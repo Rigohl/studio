@@ -12,7 +12,7 @@ import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import {toWav} from '@/lib/audio';
 import {z} from 'genkit';
-import { songCreationSchema, SongCreationFormValues } from '@/app/test-pago/actions';
+import { songCreationSchema, SongCreationFormValues } from '@/config/schemas';
 
 const IncorporateUserRequestsIntoSongInputSchema = z.object({
   lyricsDraft: z.string().describe('The initial draft of the song lyrics.'),

@@ -26,7 +26,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download, Music } from "lucide-react";
-import { createSongAction, createAlbumArtAction, reviseSongAction, songCreationSchema, SongCreationFormValues } from "@/app/test-pago/actions";
+import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
+import { songCreationSchema, SongCreationFormValues } from "@/config/schemas";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
