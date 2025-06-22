@@ -21,12 +21,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users } from "lucide-react";
 import { createSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const songCreationSchema = z.object({
   songType: z.enum(["emotional", "corrido"], { required_error: "Debes seleccionar un tipo de canción." }),
@@ -47,17 +48,26 @@ const songCreationSchema = z.object({
 
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
+type FormStep = "filling" | "upsell" | "loading" | "result";
 
 const planOptions = [
-  { value: "creator", label: "Creador", description: "1 Revisión", price: "$" },
-  { value: "artist", label: "Artista", description: "2 Revisiones", price: "$$" },
-  { value: "master", label: "Maestro", description: "3 Revisiones", price: "$$$" },
+  { value: "creator", label: "Creador", description: "1 Revisión", price: "$199" },
+  { value: "artist", label: "Artista", description: "2 Revisiones, WAV", price: "$399" },
+  { value: "master", label: "Maestro", description: "3 Revisiones, Pista", price: "$799" },
 ];
+
+const famousArtistSuggestions = {
+    emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
+    corrido: ["Estilo Peso Pluma", "Estilo Natanael Cano", "Estilo Chalino Sánchez"],
+};
 
 export function SongCreationForm({ songTypeParam }: { songTypeParam: string | null }) {
   const { toast } = useToast();
+  const [formStep, setFormStep] = useState<FormStep>("filling");
+  const [formData, setFormData] = useState<SongCreationFormValues | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SongResult | null>(null);
+  const [collaborationChoice, setCollaborationChoice] = useState<string>("");
 
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
@@ -88,14 +98,29 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       }
     }
   }, [songTypeParam, form]);
+  
+  const onSubmit = (data: SongCreationFormValues) => {
+    setFormData(data);
+    setFormStep("upsell");
+  };
 
-  async function onSubmit(data: SongCreationFormValues) {
+  const handleFinalSubmit = async (collaboration: string | null) => {
+    if (!formData) return;
     setLoading(true);
     setResult(null);
+    setFormStep("loading");
+
+    const finalData = {
+        ...formData,
+        famousCollaboration: !!collaboration,
+        styleVoice: collaboration || formData.styleVoice,
+    };
+    
     try {
-      const res = await createSongAction({ ...data, voiceType: data.voice });
+      const res = await createSongAction({ ...finalData, voiceType: finalData.voice });
       if (res.lyrics && res.audio) {
         setResult(res);
+        setFormStep("result");
         toast({
             title: "¡Tu canción ha sido creada!",
             description: "Escúchala a continuación y procede al pago para descargarla.",
@@ -111,14 +136,16 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
         description: errorMessage,
         variant: "destructive",
       });
+      setFormStep("filling"); // Go back to the form
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  if (loading) {
+
+  if (formStep === 'loading' || loading) {
     return (
-      <div className="text-center p-16 flex flex-col items-center justify-center space-y-4">
+      <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
         <h2 className="font-headline text-3xl font-bold">Estamos componiendo...</h2>
         <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles de tu obra maestra. Esto puede tardar un momento.</p>
@@ -126,7 +153,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     );
   }
 
-  if (result) {
+  if (formStep === 'result' && result) {
     return (
       <div className="space-y-8">
         <div className="text-center">
@@ -147,10 +174,56 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
             <Link href="/confirmacion" passHref>
                 <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
             </Link>
-            <Button variant="outline" onClick={() => { setResult(null); form.reset(); }}>Crear otra canción</Button>
+            <Button variant="outline" onClick={() => { setResult(null); setFormStep('filling'); form.reset(); }}>Crear otra canción</Button>
         </div>
       </div>
     );
+  }
+
+  if (formStep === 'upsell') {
+    const suggestions = formData?.songType === 'corrido' ? famousArtistSuggestions.corrido : famousArtistSuggestions.emotional;
+    return (
+        <div className="space-y-8 text-center animate-fade-in">
+            <Star className="mx-auto h-12 w-12 text-accent-gold" />
+            <h2 className="font-headline text-4xl font-bold">Un Toque de Estrella (Opcional)</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+                Por un costo adicional de <span className="font-bold text-foreground">$299</span>, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional.
+            </p>
+            
+            <Card className="max-w-lg mx-auto text-left">
+                <CardHeader>
+                    <CardTitle>Elige un Estilo de Voz</CardTitle>
+                    <CardDescription>Selecciona una sugerencia o escribe el nombre de un artista.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                        {suggestions.map(artist => (
+                            <Button key={artist} variant="outline" size="sm" onClick={() => setCollaborationChoice(artist)}>
+                                {artist}
+                            </Button>
+                        ))}
+                    </div>
+                    <Input 
+                        placeholder="O escribe el nombre de un artista..."
+                        value={collaborationChoice}
+                        onChange={(e) => setCollaborationChoice(e.target.value)}
+                    />
+                     <p className="text-xs text-muted-foreground">Nos inspiraremos en el estilo vocal del artista para la interpretación.</p>
+                </CardContent>
+            </Card>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button variant="ghost" size="lg" onClick={() => handleFinalSubmit(null)}>
+                    <Users className="mr-2 h-5 w-5" />
+                    No, gracias. Usar voz estándar.
+                </Button>
+                <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90" onClick={() => handleFinalSubmit(collaborationChoice || "Voz de Famoso")}>
+                    <Mic2 className="mr-2 h-5 w-5" />
+                    Sí, agregar por $299 y generar
+                </Button>
+            </div>
+        </div>
+    )
   }
 
   return (
@@ -239,11 +312,15 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                       <RadioGroupItem value={option.value} id={option.value} className="sr-only peer" />
                       <Label
                         htmlFor={option.value}
-                        className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center"
+                        className={cn(
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center",
+                            option.value === 'artist' && "border-accent-gold/50"
+                        )}
                       >
+                        {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2">Recomendado</span>}
                         <span className="font-bold text-lg">{option.label}</span>
                         <span className="text-sm font-medium">{option.description}</span>
-                        <span className="text-sm text-accent-gold font-bold mt-1">{option.price}</span>
+                        <span className="text-lg text-foreground font-bold mt-1">{option.price}</span>
                       </Label>
                     </FormItem>
                   ))}
@@ -254,42 +331,6 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
           )}
         />
         
-        <div className="flex items-center space-x-2">
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button variant="link" className="p-0 h-auto text-accent-gold hover:text-accent-gold/80"><Star className="w-4 h-4 mr-2" />¿Deseas que un FAMOSO ayude a tu canción?</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle className="font-headline text-2xl">Colaboración Especial</DialogTitle>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                      <p>Por un costo adicional, podemos usar un modelo de voz entrenado en un artista famoso para darle un toque aún más profesional a tu canción. ¡Imagina tu historia cantada por una estrella!</p>
-                      <p className="text-sm text-muted-foreground">Para ello, selecciona la opción de abajo y escribe el nombre del artista o una canción de referencia en el campo "Estilo de Voz" de los detalles avanzados.</p>
-                       <FormField
-                          control={form.control}
-                          name="famousCollaboration"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>
-                                 Sí, quiero la colaboración especial
-                                </FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
-                        />
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </div>
-
         <Button type="submit" size="lg" className="w-full font-bold text-lg bg-accent-gold text-accent-foreground hover:bg-accent-gold/90">
           <Wand2 className="mr-2 h-5 w-5" />
           Generar mi Canción
