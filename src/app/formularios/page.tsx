@@ -1,7 +1,8 @@
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart, Skull } from 'lucide-react';
 import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function FormulariosPage() {
   return (
@@ -23,11 +24,12 @@ export default function FormulariosPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild size="lg" className="bg-emotional-pink text-primary-foreground hover:bg-emotional-pink/90">
-              <Link href="/test-pago?type=emotional">
-                Crear Canción Emocional
-              </Link>
-            </Button>
+            <Link 
+              href="/test-pago?type=emotional"
+              className={cn(buttonVariants({ size: 'lg' }), "bg-emotional-pink text-primary-foreground hover:bg-emotional-pink/90")}
+            >
+              Crear Canción Emocional
+            </Link>
           </CardContent>
         </Card>
 
@@ -40,11 +42,12 @@ export default function FormulariosPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button asChild size="lg" className="bg-corridos-red text-white hover:bg-corridos-red/90">
-              <Link href="/test-pago?type=corrido">
-                Crear Corrido
-              </Link>
-            </Button>
+            <Link 
+              href="/test-pago?type=corrido"
+              className={cn(buttonVariants({ size: 'lg' }), "bg-corridos-red text-white hover:bg-corridos-red/90")}
+            >
+              Crear Corrido
+            </Link>
           </CardContent>
         </Card>
       </div>
