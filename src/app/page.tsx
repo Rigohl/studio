@@ -7,9 +7,11 @@ import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as I
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { planDetails, Plan } from '@/config/plans';
+
 
 const processSteps = [
   {
@@ -153,6 +155,78 @@ const inspiringPhrases = [
   "El himno perfecto para celebrar una gran amistad.",
   "Transforma tus momentos más importantes en música inolvidable."
 ];
+
+const getIconForFeature = (feature: string): ReactNode => {
+    const lowerFeature = feature.toLowerCase();
+    if (lowerFeature.includes('revisión') || lowerFeature.includes('revisiones')) return <Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" />;
+    if (lowerFeature.includes('carátula')) return <ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" />;
+    if (lowerFeature.includes('pista')) return <Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" />;
+    if (lowerFeature.includes('control') || lowerFeature.includes('personalizados') || lowerFeature.includes('inspiración')) return <Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" />;
+    return <CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" />;
+};
+
+const formatFeature = (feature: string): ReactNode => {
+    const boldRegex = /(\d+ Revisiones? de letra(?: y melodía)?)/i;
+    const parts = feature.split(boldRegex);
+
+    return parts.map((part, index) => {
+        if (index % 2 === 1) {
+            return <span key={index} className="font-bold text-foreground">{part}</span>;
+        }
+        return part;
+    });
+};
+
+
+const PlanCard = ({ plan, songType }: { plan: Plan; songType: 'emotional' | 'corrido' }) => {
+    const isRecommended = plan.isRecommended;
+    const borderColor = songType === 'emotional' ? 'border-primary' : 'border-corridos-red';
+    const buttonBg = songType === 'emotional' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-corridos-red text-white hover:bg-corridos-red/90';
+    const recommendedTextColor = songType === 'emotional' ? 'text-primary' : 'text-corridos-red';
+
+    return (
+        <Card className={cn(
+            "flex flex-col border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
+            isRecommended ? `relative shadow-xl ${borderColor}/80 hover:${borderColor}` : "border-transparent"
+        )}>
+            {isRecommended && (
+                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                    <div className={cn("px-4 py-1 rounded-full font-bold text-sm shadow-lg", buttonBg)}>
+                        Recomendado
+                    </div>
+                </div>
+            )}
+            <CardHeader className="text-center pt-8">
+                <CardTitle className="font-headline text-3xl">{plan.label}</CardTitle>
+                <CardDescription className={cn("text-lg", isRecommended ? recommendedTextColor : "")}>
+                  {songType === 'emotional' ?
+                    (plan.value === 'creator' ? 'Para dar vida a tu idea.' : plan.value === 'artist' ? 'El más popular para un resultado increíble.' : 'La experiencia prémium definitiva.')
+                    : (plan.value === 'creator' ? 'Tu historia contada con fuerza.' : plan.value === 'artist' ? 'Para forjar un corrido memorable.' : 'La experiencia definitiva para un legado.')
+                  }
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow space-y-4 text-left p-6">
+                <p className="font-bold text-4xl text-center mb-4">${plan.price}</p>
+                <Separator />
+                <ul className="space-y-3 text-muted-foreground pt-4">
+                    {plan.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                            {getIconForFeature(feature)}
+                            <span>{formatFeature(feature)}</span>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+            <CardFooter className="flex-col gap-4 p-6">
+                 <Button asChild className={cn("w-full shadow-lg", isRecommended ? buttonBg : "bg-transparent border border-input hover:bg-accent hover:text-accent-foreground")} variant={isRecommended ? 'default' : 'outline'}>
+                    <Link href={`/test-pago?type=${songType}&plan=${plan.value}`}>
+                      {isRecommended ? 'Empezar ahora' : 'Empezar'}
+                    </Link>
+                </Button>
+            </CardFooter>
+        </Card>
+    );
+};
 
 
 export default function Home() {
@@ -328,158 +402,16 @@ export default function Home() {
                     </TabsList>
                     <TabsContent value="emotional" className="mt-8">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                            {/* Plan Creador Emocional */}
-                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
-                                    <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$199</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa y emotiva</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra 100% personalizada</span></li>
-                                         <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad profesional MP3</span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link href="/test-pago?type=emotional&plan=creator">Empezar</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-
-                            {/* Plan Artista Emocional - Recommended */}
-                            <Card className="flex flex-col border-2 border-primary/80 relative shadow-xl transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
-                                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
-                                    <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
-                                        Recomendado
-                                    </div>
-                                </div>
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">Plan Artista</CardTitle>
-                                    <CardDescription className="text-lg text-primary">El más popular para un resultado increíble.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$399</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
-                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
-                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición (Instrumentos, Tempo)</span></li>
-                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital con IA</span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg">
-                                        <Link href="/test-pago?type=emotional&plan=artist">Empezar ahora</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-
-                            {/* Plan Maestro Emocional */}
-                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
-                                    <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$799</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
-                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
-                                        <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
-                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Géneros Musicales <span className="font-bold text-foreground">Personalizados y Exóticos</span></span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link href="/test-pago?type=emotional&plan=master">Empezar</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
+                            {planDetails.emotional.map(plan => (
+                                <PlanCard key={plan.value} plan={plan} songType="emotional" />
+                            ))}
                         </div>
                     </TabsContent>
                     <TabsContent value="corrido" className="mt-8">
                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-                            {/* Plan El Relato */}
-                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">El Relato</CardTitle>
-                                    <CardDescription className="text-lg">Tu historia contada con fuerza.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$249</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Corrido completo (Bélico, Tumbado, etc)</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra que narra tu hazaña</span></li>
-                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de la letra</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad de audio profesional MP3</span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link href="/test-pago?type=corrido&plan=creator">Empezar</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-
-                            {/* Plan La Leyenda - Recommended */}
-                             <Card className="flex flex-col border-2 border-corridos-red/80 relative shadow-xl transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
-                                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
-                                    <div className="bg-corridos-red text-white px-4 py-1 rounded-full font-bold text-sm shadow-lg">
-                                        Recomendado
-                                    </div>
-                                </div>
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">La Leyenda</CardTitle>
-                                    <CardDescription className="text-lg text-corridos-red">Para forjar un corrido memorable.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$499</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de El Relato +</span></li>
-                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y arreglos</span></li>
-                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Control de Composición Avanzado</span></li>
-                                        <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital con IA</span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild className="w-full bg-corridos-red text-white hover:bg-corridos-red/90 shadow-lg">
-                                        <Link href="/test-pago?type=corrido&plan=artist">Empezar ahora</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
-
-                            {/* Plan El Patriarca */}
-                            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-corridos-red hover:shadow-2xl hover:-translate-y-2">
-                                <CardHeader className="text-center pt-8">
-                                    <CardTitle className="font-headline text-3xl">El Patriarca</CardTitle>
-                                    <CardDescription className="text-lg">La experiencia definitiva para un legado.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-grow space-y-4 text-left p-6">
-                                    <p className="font-bold text-4xl text-center mb-4">$999</p>
-                                    <Separator />
-                                    <ul className="space-y-3 text-muted-foreground pt-4">
-                                        <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo de La Leyenda +</span></li>
-                                        <li className="flex items-start gap-3"><Edit className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> completas</span></li>
-                                        <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
-                                        <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> para tus eventos</span></li>
-                                        <li className="flex items-start gap-3"><Wand2 className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Géneros y Fusiones</span> personalizadas</span></li>
-                                    </ul>
-                                </CardContent>
-                                <CardFooter className="flex-col gap-4 p-6">
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link href="/test-pago?type=corrido&plan=master">Empezar</Link>
-                                    </Button>
-                                </CardFooter>
-                            </Card>
+                             {planDetails.corrido.map(plan => (
+                                <PlanCard key={plan.value} plan={plan} songType="corrido" />
+                            ))}
                         </div>
                     </TabsContent>
                 </Tabs>
@@ -554,7 +486,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
-
-    

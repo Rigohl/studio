@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,8 +32,9 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+import { planDetails, revisionCounts, Plan } from "@/config/plans";
 
 
 const songCreationSchema = z.object({
@@ -61,26 +62,8 @@ const songCreationSchema = z.object({
 type SongCreationFormValues = z.infer<typeof songCreationSchema>;
 type SongResult = { lyrics: string; audio: string; };
 type FormStep = "filling" | "upsell" | "loading" | "review" | "result";
-type Plan = "creator" | "artist" | "master";
+type PlanValue = "creator" | "artist" | "master";
 
-const planDetails = {
-    creator: { revisions: 1 },
-    artist: { revisions: 2 },
-    master: { revisions: 3 },
-};
-
-const planOptions = {
-    emotional: [
-        { value: "creator", label: "Creador", price: "$199", features: ["Canción completa y emotiva", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
-        { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
-        { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados", "Inspiración en Estilo de Artista"] },
-    ],
-    corrido: [
-        { value: "creator", label: "El Relato", price: "$249", features: ["Corrido completo (Bélico, etc.)", "Letra que narra tu hazaña", "1 Revisión de la letra", "Calidad profesional MP3"] },
-        { value: "artist", label: "La Leyenda", price: "$499", features: ["Todo lo de El Relato +", "2 Revisiones de letra y arreglos", "Control de Composición Avanzado", "Carátula de Álbum con IA"] },
-        { value: "master", label: "El Patriarca", price: "$999", features: ["Todo lo de La Leyenda +", "3 Revisiones completas", "Audio WAV (Calidad Estudio)", "Pista instrumental para tus eventos", "Géneros y Fusiones personalizadas", "Inspiración en Estilo de Artista"] },
-    ]
-};
 
 const famousArtistSuggestions = {
     emotional: ["Estilo Ed Sheeran", "Estilo Adele", "Estilo Luis Miguel"],
@@ -165,7 +148,16 @@ const loadingMessages = [
     "Aplicando los toques finales...",
 ];
 
-const isValidPlan = (plan: any): plan is Plan => ["creator", "artist", "master"].includes(plan);
+const getIconForFeature = (feature: string): ReactNode => {
+    const lowerFeature = feature.toLowerCase();
+    if (lowerFeature.includes('personalizados') || lowerFeature.includes('fusiones') || lowerFeature.includes('inspiración')) return <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />;
+    if (lowerFeature.includes('revisión') || lowerFeature.includes('revisiones')) return <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />;
+    if (lowerFeature.includes('carátula')) return <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />;
+    if (lowerFeature.includes('pista')) return <Disc className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />;
+    return <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />;
+};
+
+const isValidPlan = (plan: any): plan is PlanValue => ["creator", "artist", "master"].includes(plan);
 
 export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: string | null, planParam: string | null }) {
   const { toast } = useToast();
@@ -185,7 +177,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
   const genres = songType === 'corrido' ? corridoGenres : emotionalGenres;
-  const currentPlanOptions = songType === 'corrido' ? planOptions.corrido : planOptions.emotional;
+  const currentPlanOptions = planDetails[songType];
 
   const form = useForm<SongCreationFormValues>({
     resolver: zodResolver(songCreationSchema),
@@ -285,7 +277,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     };
     setFormData(finalData);
     
-    setRevisionsRemaining(planDetails[finalData.plan].revisions);
+    setRevisionsRemaining(revisionCounts[finalData.plan]);
     setFormStep("loading");
     
     const isPremium = finalData.plan === 'artist' || finalData.plan === 'master';
@@ -393,12 +385,14 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
 
   if (formStep === 'review' && result && formData) {
     const hasRevisionsLeft = revisionsRemaining > 0;
-    const currentPlanForReview = formData.plan;
+    const totalRevisions = revisionCounts[formData.plan];
+    const revisionsUsed = totalRevisions - revisionsRemaining;
+
     return (
         <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
             <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
                 <theme.Icon className="mx-auto h-12 w-12 text-primary" />
-                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión (Cambio {planDetails[currentPlanForReview].revisions - revisionsRemaining + 1}/{planDetails[currentPlanForReview].revisions})</CardTitle>
+                <CardTitle className="font-headline text-4xl font-bold mt-4">Paso de Revisión (Cambio {revisionsUsed + 1}/{totalRevisions})</CardTitle>
                 <CardDescription className="text-muted-foreground mt-2">Escucha un preview de 15 segundos y solicita cambios si lo necesitas.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 space-y-8">
@@ -416,7 +410,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 </div>
                 <div className="bg-secondary/50 p-6 rounded-lg">
                     <h3 className="font-headline text-2xl mb-4">Letra Generada</h3>
-                    <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed max-h-60 overflow-y-auto">{result.lyrics}</pre>
+                    <pre className="whitespace-pre-wrap font-body text-sm leading-relaxed max-h-60 overflow-y-auto">{result.lyrics || "No se pudo generar la letra. Por favor, intenta de nuevo o modifica tu historia."}</pre>
                 </div>
 
                 {hasRevisionsLeft ? (
@@ -465,9 +459,9 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   if (formStep === 'result' && result && formData) {
     const shareUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const shareText = `¡He creado una canción personalizada con IA en DualMuse! Escucha mi creación: ${shareUrl}`;
-    const planDetails = currentPlanOptions.find(p => p.value === formData.plan);
-    const price = planDetails ? planDetails.price.replace('$', '') : '0';
-    const planName = planDetails ? planDetails.label : 'N/A';
+    const planInfo = currentPlanOptions.find(p => p.value === formData.plan);
+    const price = planInfo ? planInfo.price : 0;
+    const planName = planInfo ? planInfo.label : 'N/A';
     
     return (
      <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
@@ -840,16 +834,16 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     htmlFor={option.value}
                                     className={cn(
                                         "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative h-full",
-                                        option.value === 'artist' && (songType === 'emotional' ? "peer-data-[state=unchecked]:border-primary/50" : "peer-data-[state=unchecked]:border-corridos-red/50")
+                                        option.isRecommended && (songType === 'emotional' ? "peer-data-[state=unchecked]:border-primary/50" : "peer-data-[state=unchecked]:border-corridos-red/50")
                                     )}
                                   >
-                                    {option.value === 'artist' && <span className={cn("text-xs text-primary-foreground px-2 py-0.5 rounded-full absolute -top-2.5", songType === 'emotional' ? 'bg-primary' : 'bg-corridos-red text-white')}>Recomendado</span>}
+                                    {option.isRecommended && <span className={cn("text-xs text-primary-foreground px-2 py-0.5 rounded-full absolute -top-2.5", songType === 'emotional' ? 'bg-primary' : 'bg-corridos-red text-white')}>Recomendado</span>}
                                     <span className="font-bold text-lg">{option.label}</span>
-                                    <span className="text-2xl text-foreground font-bold my-2">{option.price}</span>
+                                    <span className="text-2xl text-foreground font-bold my-2">${option.price}</span>
                                     <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
                                         {option.features.map((feature, idx) => (
                                             <li key={idx} className="flex items-start gap-2">
-                                                {feature.includes('Personalizados') || feature.includes('Fusiones') || feature.includes('Inspiración') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Revisión') || feature.includes('Revisiones') ? <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Carátula') ? <ImageIcon className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : feature.includes('Pista') ? <Disc className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
+                                                {getIconForFeature(feature)}
                                                 <span>{feature}</span>
                                             </li>
                                         ))}

@@ -10,8 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
+import {toWav} from '@/lib/audio';
 import {z} from 'genkit';
-import wav from 'wav';
 
 // Re-using the input schema from the main generation flow for consistency
 const SongDetailsSchema = z.object({
@@ -55,33 +55,6 @@ export type IncorporateUserRequestsIntoSongOutput = z.infer<typeof IncorporateUs
 
 export async function incorporateUserRequestsIntoSong(input: IncorporateUserRequestsIntoSongInput): Promise<IncorporateUserRequestsIntoSongOutput> {
   return incorporateUserRequestsIntoSongFlow(input);
-}
-
-async function toWav(
-  pcmData: Buffer,
-  channels = 1,
-  rate = 24000,
-  sampleWidth = 2
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const writer = new wav.Writer({
-      channels,
-      sampleRate: rate,
-      bitDepth: sampleWidth * 8,
-    });
-
-    const bufs: Buffer[] = [];
-    writer.on('error', reject);
-    writer.on('data', function (d) {
-      bufs.push(d);
-    });
-    writer.on('end', function () {
-      resolve(Buffer.concat(bufs).toString('base64'));
-    });
-
-    writer.write(pcmData);
-    writer.end();
-  });
 }
 
 const revisionPrompt = ai.definePrompt({
