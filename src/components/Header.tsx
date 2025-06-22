@@ -17,6 +17,8 @@ export function Header() {
     { href: "/ejemplos", label: "Ejemplos" },
     { href: "/quienes-somos", label: "Quiénes Somos" },
     { href: "/faq", label: "FAQ" },
+    { href: "/ayuda", label: "Ayuda" },
+    { href: "/contacto", label: "Contacto" },
   ];
 
   return (

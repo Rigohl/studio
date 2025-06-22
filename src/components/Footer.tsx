@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Music } from "lucide-react";
 
@@ -27,6 +28,8 @@ export function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link href="/quienes-somos" className="text-muted-foreground hover:text-foreground">Quiénes Somos</Link></li>
             <li><Link href="/faq" className="text-muted-foreground hover:text-foreground">Preguntas Frecuentes</Link></li>
+            <li><Link href="/ayuda" className="text-muted-foreground hover:text-foreground">Ayuda</Link></li>
+            <li><Link href="/contacto" className="text-muted-foreground hover:text-foreground">Contacto</Link></li>
             <li><Link href="/terms" className="text-muted-foreground hover:text-foreground">Términos de Servicio</Link></li>
             <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground">Política de Privacidad</Link></li>
           </ul>
