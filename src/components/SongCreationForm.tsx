@@ -57,7 +57,7 @@ type FormStep = "filling" | "upsell" | "loading" | "result";
 const planOptions = [
     { value: "creator", label: "Creador", price: "$199", features: ["Canción completa", "Letra 100% personalizada", "1 Revisión de letra", "Calidad profesional MP3"] },
     { value: "artist", label: "Artista", price: "$399", features: ["Todo lo del Plan Creador +", "2 Revisiones de letra", "Acceso a Detalles Avanzados", "Carátula de Álbum Digital"] },
-    { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental"] },
+    { value: "master", label: "Maestro", price: "$799", features: ["Todo lo del Plan Artista +", "3 Revisiones de letra", "Audio WAV (Calidad Estudio)", "Pista instrumental", "Libertad para Géneros Personalizados"] },
 ];
 
 const famousArtistSuggestions = {
@@ -107,6 +107,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
   const [result, setResult] = useState<SongResult | null>(null);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
+  const [genreSearch, setGenreSearch] = useState("");
 
   const songType = songTypeParam === 'corrido' ? 'corrido' : 'emotional';
   const theme = experienceThemes[songType];
@@ -346,33 +347,42 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                             </PopoverTrigger>
                             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                               <Command
+                                value={genreSearch}
+                                onValueChange={setGenreSearch}
                                 filter={(value, search) => {
                                   if (value.toLowerCase().includes(search.toLowerCase())) return 1;
                                   return 0;
                                 }}
                               >
                                 <CommandInput
-                                  placeholder="Busca o escribe un género..."
+                                  placeholder={plan === 'master' ? "Busca o escribe un género..." : "Busca un género..."}
                                 />
                                 <CommandList>
                                   <CommandEmpty>
-                                    <CommandItem
-                                      onSelect={(value) => {
-                                        form.setValue("genre", value);
-                                        setGenrePopoverOpen(false);
-                                      }}
-                                    >
-                                      Crear: "{form.getValues('genre')}"
-                                    </CommandItem>
+                                    {plan === 'master' && genreSearch.length > 0 ? (
+                                      <CommandItem
+                                        onSelect={() => {
+                                          form.setValue("genre", genreSearch);
+                                          setGenrePopoverOpen(false);
+                                          setGenreSearch("");
+                                        }}
+                                      >
+                                        <Check className="mr-2 h-4 w-4 opacity-0" />
+                                        Crear: "{genreSearch}"
+                                      </CommandItem>
+                                    ) : (
+                                      'No se encontraron resultados.'
+                                    )}
                                   </CommandEmpty>
                                   <CommandGroup>
                                     {genres.map((genre) => (
                                       <CommandItem
                                         value={genre}
                                         key={genre}
-                                        onSelect={() => {
-                                          form.setValue("genre", genre);
+                                        onSelect={(currentValue) => {
+                                          form.setValue("genre", currentValue);
                                           setGenrePopoverOpen(false);
+                                          setGenreSearch("");
                                         }}
                                       >
                                         <Check
@@ -390,7 +400,9 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                             </PopoverContent>
                           </Popover>
                            <FormDescription>
-                             Puedes elegir de la lista o escribir un género personalizado.
+                             {plan === 'master'
+                               ? 'Puedes elegir de la lista o escribir un género personalizado.'
+                               : 'Elige un género de la lista. Plan Maestro requerido para géneros personalizados.'}
                            </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -444,7 +456,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                                 <ul className="space-y-2 text-xs text-muted-foreground text-left w-full">
                                     {option.features.map(feature => (
                                         <li key={feature} className="flex items-start gap-2">
-                                            <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                                            {feature.includes('Personalizados') ? <Wand2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" /> : <Check className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />}
                                             <span>{feature}</span>
                                         </li>
                                     ))}
