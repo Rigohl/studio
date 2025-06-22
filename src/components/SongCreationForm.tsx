@@ -26,7 +26,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download } from "lucide-react";
 import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -155,6 +155,15 @@ const experienceThemes = {
 
 const emotionalGenres = ["Balada Pop", "Acústico", "R&B", "Cumbia Romántica", "Rock Pop"];
 const corridoGenres = ["Corrido Tumbado", "Corrido Bélico", "Corrido Alterado", "Corrido Progresivo", "Sierreño", "Trap Corrido", "Norteño-Corrido", "Banda-Corrido"];
+const loadingMessages = [
+    "Analizando tu historia...",
+    "Consultando a los compositores de IA...",
+    "Escribiendo la letra...",
+    "Afinando los instrumentos virtuales...",
+    "Grabando las voces...",
+    "Mezclando la pista...",
+    "Aplicando los toques finales...",
+];
 
 const isValidPlan = (plan: any): plan is Plan => ["creator", "artist", "master"].includes(plan);
 
@@ -163,7 +172,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [formStep, setFormStep] = useState<FormStep>("filling");
   const [formData, setFormData] = useState<SongCreationFormValues | null>(null);
   const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Estamos componiendo...");
+  const [currentLoadingMessage, setCurrentLoadingMessage] = useState(loadingMessages[0]);
   const [result, setResult] = useState<SongResult | null>(null);
   const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
   const [revisionsRemaining, setRevisionsRemaining] = useState(0);
@@ -227,15 +236,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         if (audio.currentTime > 15) {
             audio.pause();
             audio.currentTime = 0;
-            // Detach the listener after it has run once
             audio.removeEventListener('timeupdate', handleTimeUpdate);
         }
     };
     
     const handlePlay = () => {
-        // Reset and add the listener only when play starts
         audio.currentTime = 0;
-        audio.removeEventListener('timeupdate', handleTimeUpdate); // ensure no duplicates
+        audio.removeEventListener('timeupdate', handleTimeUpdate); 
         audio.addEventListener('timeupdate', handleTimeUpdate);
     };
 
@@ -246,6 +253,18 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         audio.removeEventListener('timeupdate', handleTimeUpdate);
     };
   }, [result]);
+
+   useEffect(() => {
+      if (formStep === 'loading') {
+        let i = 0;
+        setCurrentLoadingMessage(loadingMessages[i]);
+        const interval = setInterval(() => {
+          i = (i + 1) % loadingMessages.length;
+          setCurrentLoadingMessage(loadingMessages[i]);
+        }, 2500);
+        return () => clearInterval(interval);
+      }
+    }, [formStep]);
 
   const onSubmit = (data: SongCreationFormValues) => {
     setFormData(data);
@@ -264,15 +283,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         famousCollaboration: !!collaboration,
         styleVoice: collaboration || "",
     };
-    setFormData(finalData); // Store the final data including collaboration choice
+    setFormData(finalData);
     
     setRevisionsRemaining(planDetails[finalData.plan].revisions);
+    setFormStep("loading");
     
-    // Album Art Generation
     const isPremium = finalData.plan === 'artist' || finalData.plan === 'master';
     if (isPremium) {
-        setLoadingMessage("Creando una carátula única para tu álbum...");
-        setFormStep("loading");
         const artResult = await createAlbumArtAction({ prompt: finalData.story });
         if (artResult.imageUrl) {
             setAlbumArtUrl(artResult.imageUrl);
@@ -281,9 +298,6 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         }
     }
 
-    // Song Generation
-    setLoadingMessage("Componiendo tu obra maestra...");
-    setFormStep("loading");
     try {
       const res = await createSongAction({ ...finalData, voiceType: finalData.voice });
       if (res.lyrics && res.audio) {
@@ -314,7 +328,6 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     if (!formData || !result || !revisionRequest) return;
     
     setLoading(true);
-    setLoadingMessage("Aplicando tus cambios a la canción...");
     setFormStep("loading");
 
     try {
@@ -336,10 +349,23 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     } catch (error) {
       console.error(error);
       toast({ title: "Error al revisar la canción", description: String(error), variant: "destructive" });
-      setFormStep("review"); // Go back to review step on error
+      setFormStep("review");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadLyrics = () => {
+    if (!result) return;
+    const blob = new Blob([result.lyrics], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'letra-cancion.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   if (formStep === 'loading' || loading) {
@@ -348,8 +374,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         <CardContent className="p-8">
             <div className="text-center p-16 flex flex-col items-center justify-center space-y-4 h-[50vh]">
                 <Loader2 className="h-16 w-16 animate-spin text-primary" />
-                <h2 className="font-headline text-3xl font-bold">{loadingMessage}</h2>
-                <p className="text-muted-foreground">Nuestra IA está afinando los últimos detalles. Esto puede tardar un momento.</p>
+                <h2 className="font-headline text-3xl font-bold">{currentLoadingMessage}</h2>
+                <p className="text-muted-foreground">La magia toma su tiempo. Estamos creando algo único para ti.</p>
                 {albumArtUrl && (
                     <div className="mt-4">
                         <p className="text-sm font-semibold mb-2">Carátula generada:</p>
@@ -432,9 +458,13 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     );
   }
 
-  if (formStep === 'result' && result) {
+  if (formStep === 'result' && result && formData) {
     const shareUrl = typeof window !== 'undefined' ? window.location.origin : '';
     const shareText = `¡He creado una canción personalizada con IA en DualMuse! Escucha mi creación: ${shareUrl}`;
+    const planDetails = currentPlanOptions.find(p => p.value === formData.plan);
+    const price = planDetails ? planDetails.price.replace('$', '') : '0';
+    const planName = planDetails ? planDetails.label : 'N/A';
+    
     return (
      <Card className={cn("max-w-4xl mx-auto shadow-2xl", theme.cardClass)}>
         <CardHeader className="text-center bg-secondary/30 p-8 rounded-t-lg">
@@ -448,11 +478,23 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     <Image src={albumArtUrl} alt="Carátula final del álbum" width={250} height={250} className="rounded-lg shadow-2xl" />
                 </div>
             )}
-            <div className="bg-secondary/50 p-6 rounded-lg">
-                <h3 className="font-headline text-2xl mb-4">Audio Final</h3>
+            <div className="bg-secondary/50 p-6 rounded-lg space-y-4">
+                <h3 className="font-headline text-2xl">Audio Final</h3>
                 <audio controls src={result.audio} className="w-full">
                     Tu navegador no soporta el audio.
                 </audio>
+                <div className="flex gap-4">
+                     <Button asChild variant="outline" className="w-full">
+                        <a href={result.audio} download={`dualmuse-${formData.songType}.wav`}>
+                            <Download className="mr-2" />
+                            Descargar Audio (.wav)
+                        </a>
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={handleDownloadLyrics}>
+                        <Download className="mr-2" />
+                        Descargar Letra (.txt)
+                    </Button>
+                </div>
             </div>
             <div className="bg-secondary/50 p-6 rounded-lg">
                 <h3 className="font-headline text-2xl mb-4">Letra Final</h3>
@@ -462,19 +504,19 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 <div>
                     <h3 className="font-headline text-xl mb-3">Comparte tu creación</h3>
                     <div className="flex justify-center gap-4">
-                        <Button asChild variant="outline">
+                        <Button asChild variant="outline" size="icon">
                             <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
                                 <Twitter className="h-5 w-5" />
                                 <span className="sr-only">Twitter</span>
                             </a>
                         </Button>
-                         <Button asChild variant="outline">
+                         <Button asChild variant="outline" size="icon">
                             <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer">
                                 <Facebook className="h-5 w-5" />
                                 <span className="sr-only">Facebook</span>
                             </a>
                         </Button>
-                         <Button asChild variant="outline">
+                         <Button asChild variant="outline" size="icon">
                             <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noopener noreferrer" data-action="share/whatsapp/share">
                                 <Share2 className="h-5 w-5" />
                                 <span className="sr-only">WhatsApp</span>
@@ -482,7 +524,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                         </Button>
                     </div>
                 </div>
-                <Link href="/confirmacion" passHref>
+                <Link href={`/confirmacion?plan=${encodeURIComponent(planName)}&price=${price}&type=${formData.songType}`} passHref>
                     <Button size="lg" className="bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 text-lg">Proceder al Pago</Button>
                 </Link>
                 <Button variant="outline" onClick={() => { setResult(null); setFormStep('filling'); form.reset(); }}>Crear otra canción</Button>
@@ -767,8 +809,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                       render={({ field }) => (
                         <FormItem className="space-y-3">
                           <FormLabel className="font-headline text-lg">Elige tu Plan</FormLabel>
-                          <FormControl>
-                            <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                               {currentPlanOptions.map(option => (
                                 <FormItem key={option.value}>
                                   <FormControl>
@@ -795,8 +836,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                   </Label>
                                 </FormItem>
                               ))}
-                            </RadioGroup>
-                          </FormControl>
+                          </RadioGroup>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -1,10 +1,13 @@
+
 "use client";
 
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Music } from "lucide-react";
+import { Menu, Music } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetClose, SheetTrigger } from "./ui/sheet";
+import { Separator } from "./ui/separator";
 
 export function Header() {
   const pathname = usePathname();
@@ -39,10 +42,49 @@ export function Header() {
         </nav>
         <div className="flex items-center gap-4">
            <Link href="/formularios" passHref>
-            <Button className="font-bold bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-md">
+            <Button className="font-bold bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 transition-transform duration-300 hover:scale-105 shadow-md hidden sm:flex">
                 Crear Canción
             </Button>
           </Link>
+          <div className="md:hidden">
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                        <Menu className="h-6 w-6" />
+                        <span className="sr-only">Abrir menú</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[240px]">
+                    <div className="flex flex-col gap-4 py-8">
+                         <Link href="/" className="flex items-center gap-2 mb-4">
+                            <Music className="h-6 w-6 text-primary" />
+                            <span className="font-headline text-xl font-bold">DualMuse</span>
+                        </Link>
+                        {navLinks.map((link) => (
+                            <SheetClose asChild key={link.href}>
+                                <Link
+                                    href={link.href}
+                                    className={cn(
+                                        "text-lg",
+                                        pathname === link.href ? "text-foreground font-bold" : "text-foreground/60"
+                                    )}
+                                >
+                                    {link.label}
+                                </Link>
+                            </SheetClose>
+                        ))}
+                         <Separator className="my-2" />
+                         <SheetClose asChild>
+                           <Link href="/formularios" passHref>
+                            <Button className="font-bold bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 w-full">
+                                Crear Canción
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                    </div>
+                </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
