@@ -100,11 +100,11 @@ const experienceThemes = {
             { value: "inspirador", label: "Inspirador" },
         ],
         tooltips: {
-            instrumentation: "Impacto: Pocos instrumentos (ej: piano solo) crean un ambiente íntimo y personal. Muchos (ej: orquesta) dan un toque épico y grandioso. Esto define la paleta sonora de tu canción.",
-            mood: "Define la emoción principal. Esto guiará la melodía y la armonía para evocar el sentimiento correcto.",
-            tempo: "Marca el pulso de tu canción. 'Lento' para una balada introspectiva, 'Medio' para un ritmo pop, o 'Rápido' para una canción enérgica.",
-            structure: "Define el viaje musical. 'Clásica' (verso-coro) es ideal para un estribillo pegadizo. 'Narrativa' es perfecta para contar una historia cronológica.",
-            ending: "Decide el adiós de la canción. 'Abrupto' para un corte dramático, 'Fade out' para un final suave, o 'Épico instrumental' para un clímax emocional.",
+            instrumentation: "Impacto: Pocos instrumentos (ej: piano solo) crean un ambiente íntimo. Muchos (ej: orquesta) dan un toque épico. Mini-guía: Para una balada triste, menos es más. Para una canción alegre, ¡añade más ritmo!",
+            mood: "Define la emoción principal. Esto guía la melodía y la armonía. Mini-guía: 'Apasionado' usa acordes intensos, 'Soñador' usa sonidos más suaves y etéreos.",
+            tempo: "Marca el pulso de tu canción. Mini-guía: Lento = Balada introspectiva. Medio = Ritmo pop para bailar. Rápido = Canción enérgica y llena de vida.",
+            structure: "Define el viaje musical. Mini-guía: 'Clásica (verso-coro)' es ideal para un estribillo pegadizo. 'Narrativa' es perfecta para contar una historia de principio a fin.",
+            ending: "Decide el adiós de la canción. Mini-guía: 'Fade out' para un final suave y reflexivo. 'Épico instrumental' para un clímax emocional inolvidable.",
         }
     },
     corrido: {
@@ -128,11 +128,11 @@ const experienceThemes = {
             { value: "de-respeto", label: "De Respeto" },
         ],
         tooltips: {
-            instrumentation: "Impacto: Un solo instrumento (ej: guitarra) da un toque crudo y personal. Una banda completa (acordeón, bajo sexto) da una sensación de poder y presencia. Define el arsenal sonoro de tu corrido.",
-            mood: "Elige el tono de la historia. Esto define si el corrido sonará como una advertencia, una celebración o un recuerdo.",
-            tempo: "Define el ritmo del corrido. 'Lento' para un tono narrativo, 'Medio' para un paso firme, o 'Rápido' para una sensación de acción.",
-            structure: "Define cómo se contará la hazaña. 'Clásica' (verso-coro) para un mensaje central. 'Narrativa' cuenta la historia de principio a fin, como una leyenda.",
-            ending: "Elige cómo termina la leyenda. 'Abrupto' para un final impactante, 'Fade out' para un cierre que perdura, o 'Épico instrumental' para un remate de poder.",
+            instrumentation: "Impacto: Un solo instrumento (ej: guitarra) da un toque crudo y personal. Una banda completa da poder. Mini-guía: Requinto y Tololoche para un sonido clásico. Charchetas y Trombón para un estilo bélico moderno.",
+            mood: "Elige el tono de la historia. Esto define si sonará como una advertencia, una celebración o un recuerdo. Mini-guía: 'Desafiante' usa tonos menores. 'Triunfal' usa fanfarrias y tonos mayores.",
+            tempo: "Define el ritmo del corrido. Mini-guía: Lento para un tono narrativo y pesado. Medio para un paso firme y seguro. Rápido para una sensación de acción y balacera.",
+            structure: "Define cómo se contará la hazaña. Mini-guía: 'Clásica' es ideal para un mensaje central que se repite. 'Narrativa' cuenta la historia cronológica, como una leyenda de película.",
+            ending: "Elige cómo termina la leyenda. Mini-guía: 'Final abrupto' para un remate impactante. 'Épico instrumental' para una demostración de poder con acordeón y tuba.",
         }
     }
 };
@@ -185,14 +185,16 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
   const [revisionRequest, setRevisionRequest] = useState("");
   const [isRevising, setIsRevising] = useState(false);
   const [collaborationChoice, setCollaborationChoice] = useState<string>("");
+  
+  // State for popovers
   const [genrePopoverOpen, setGenrePopoverOpen] = useState(false);
   const [genre2PopoverOpen, setGenre2PopoverOpen] = useState(false);
   const [artistPopoverOpen, setArtistPopoverOpen] = useState(false);
 
-  // Keys to force re-render of Command components to fix state issue
-  const [genreKey, setGenreKey] = useState(0);
-  const [genre2Key, setGenre2Key] = useState(0);
-  const [artistKey, setArtistKey] = useState(0);
+  // State for search terms in comboboxes
+  const [genreSearch, setGenreSearch] = useState("");
+  const [genre2Search, setGenre2Search] = useState("");
+  const [artistSearch, setArtistSearch] = useState("");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -387,6 +389,11 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
 
   const renderFormFields = () => {
     const commonFields = {
+        email: (
+             <FormField key="email" control={form.control} name="email" render={({ field }) => (
+                <FormItem><FormLabel>Tu Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="Para enviarte la canción final" {...field} /></FormControl><FormDescription>No lo compartiremos con nadie.</FormDescription><FormMessage /></FormItem>
+            )}/>
+        ),
         dedicatedTo: (
             <FormField key="dedicatedTo" control={form.control} name="dedicatedTo" render={({ field }) => (
                 <FormItem><FormLabel>{theme.dedicatedToLabel}</FormLabel><FormControl><Input placeholder={theme.dedicatedToPlaceholder} {...field} /></FormControl><FormMessage /></FormItem>
@@ -395,11 +402,6 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
         requester: (
             <FormField key="requester" control={form.control} name="requester" render={({ field }) => (
                 <FormItem><FormLabel>{theme.requesterLabel}</FormLabel><FormControl><Input placeholder="Tu nombre" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-        ),
-        email: (
-             <FormField key="email" control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>Tu Correo Electrónico</FormLabel><FormControl><Input type="email" placeholder="Para enviarte la canción final" {...field} /></FormControl><FormDescription>No lo compartiremos con nadie.</FormDescription><FormMessage /></FormItem>
             )}/>
         ),
         nickname: (
@@ -701,8 +703,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             <FormItem className="flex flex-col">
                               <FormLabel>Género Musical Principal</FormLabel>
                                 <Popover open={genrePopoverOpen} onOpenChange={(open) => {
-                                    if (open) setGenreKey(k => k + 1);
                                     setGenrePopoverOpen(open);
+                                    if (!open) setGenreSearch("");
                                 }}>
                                 <PopoverTrigger asChild>
                                     <FormControl>
@@ -713,19 +715,23 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                     </FormControl>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                    <Command key={genreKey}>
-                                        <CommandInput placeholder={plan === 'master' ? "Busca o crea un género..." : "Busca un género..."} />
+                                    <Command>
+                                        <CommandInput 
+                                            placeholder={plan === 'master' ? "Busca o crea un género..." : "Busca un género..."} 
+                                            value={genreSearch}
+                                            onValueChange={setGenreSearch}
+                                        />
                                         <CommandList>
                                             <CommandEmpty>
-                                                 {plan === 'master' ? 'No se encontraron resultados. Escribe para crear uno nuevo.' : 'No se encontraron resultados.'}
+                                                 {plan === 'master' ? 'No se encontraron resultados.' : 'No se encontraron resultados.'}
                                             </CommandEmpty>
                                             <CommandGroup>
                                                 {genres.map((genre) => (
                                                 <CommandItem
                                                     value={genre}
                                                     key={genre}
-                                                    onSelect={(currentValue) => {
-                                                        form.setValue("genre", currentValue === field.value ? "" : currentValue);
+                                                    onSelect={() => {
+                                                        form.setValue("genre", genre === field.value ? "" : genre);
                                                         setGenrePopoverOpen(false);
                                                     }}
                                                 >
@@ -734,19 +740,17 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                 </CommandItem>
                                                 ))}
                                             </CommandGroup>
-                                            {plan === 'master' && (
+                                            {plan === 'master' && genreSearch && !genres.some(g => g.toLowerCase() === genreSearch.toLowerCase()) && (
                                                 <CommandGroup heading="Crear Nuevo">
                                                      <CommandItem
-                                                        onSelect={() => {
-                                                            const newGenre = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
-                                                            if (newGenre) {
-                                                                form.setValue("genre", newGenre);
-                                                                setGenrePopoverOpen(false);
-                                                            }
+                                                        value={genreSearch}
+                                                        onSelect={(currentValue) => {
+                                                            form.setValue("genre", currentValue);
+                                                            setGenrePopoverOpen(false);
                                                         }}
                                                     >
                                                         <span className="mr-2 h-4 w-4" />
-                                                        <span>Crear el género que escribí</span>
+                                                        <span>Crear: "{genreSearch}"</span>
                                                     </CommandItem>
                                                 </CommandGroup>
                                             )}
@@ -769,8 +773,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         <Wand2 className="h-4 w-4 text-accent-gold" />
                                     </FormLabel>
                                     <Popover open={genre2PopoverOpen} onOpenChange={(open) => {
-                                        if (open) setGenre2Key(k => k + 1);
                                         setGenre2PopoverOpen(open);
+                                        if (!open) setGenre2Search("");
                                     }}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
@@ -781,17 +785,21 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                         </FormControl>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                             <Command key={genre2Key}>
-                                                <CommandInput placeholder="Busca o crea un género..." />
+                                             <Command>
+                                                <CommandInput 
+                                                    placeholder="Busca o crea un género..."
+                                                    value={genre2Search}
+                                                    onValueChange={setGenre2Search}
+                                                />
                                                 <CommandList>
-                                                    <CommandEmpty>No se encontraron resultados. Escribe para crear.</CommandEmpty>
+                                                    <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                                                     <CommandGroup>
                                                         {genres.map((genre) => (
                                                         <CommandItem
                                                             value={genre}
                                                             key={genre}
-                                                            onSelect={(currentValue) => {
-                                                                form.setValue("genre2", currentValue === field.value ? "" : currentValue);
+                                                            onSelect={() => {
+                                                                form.setValue("genre2", genre === field.value ? "" : genre);
                                                                 setGenre2PopoverOpen(false);
                                                             }}
                                                         >
@@ -800,20 +808,20 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                         </CommandItem>
                                                         ))}
                                                     </CommandGroup>
-                                                    <CommandGroup heading="Crear Nuevo">
-                                                        <CommandItem
-                                                            onSelect={() => {
-                                                                const newGenre = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
-                                                                if (newGenre) {
-                                                                    form.setValue("genre2", newGenre);
+                                                     {genre2Search && !genres.some(g => g.toLowerCase() === genre2Search.toLowerCase()) && (
+                                                        <CommandGroup heading="Crear Nuevo">
+                                                            <CommandItem
+                                                                value={genre2Search}
+                                                                onSelect={(currentValue) => {
+                                                                    form.setValue("genre2", currentValue);
                                                                     setGenre2PopoverOpen(false);
-                                                                }
-                                                            }}
-                                                        >
-                                                             <span className="mr-2 h-4 w-4" />
-                                                            <span>Crear el género que escribí</span>
-                                                        </CommandItem>
-                                                    </CommandGroup>
+                                                                }}
+                                                            >
+                                                                <span className="mr-2 h-4 w-4" />
+                                                                <span>Crear: "{genre2Search}"</span>
+                                                            </CommandItem>
+                                                        </CommandGroup>
+                                                    )}
                                                 </CommandList>
                                             </Command>
                                         </PopoverContent>
@@ -903,8 +911,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                     <Tooltip><TooltipTrigger asChild><button type="button" onClick={(e) => e.preventDefault()}><Info className="h-4 w-4 text-muted-foreground cursor-help" /></button></TooltipTrigger><TooltipContent><p className="max-w-xs">Escribe un artista. Nos inspiraremos en su estilo musical (instrumentación, arreglos, ambiente), no en su voz.</p></TooltipContent></Tooltip>
                                                 </FormLabel>
                                                 <Popover open={artistPopoverOpen} onOpenChange={(open) => {
-                                                    if(open) setArtistKey(k => k + 1);
                                                     setArtistPopoverOpen(open);
+                                                    if(!open) setArtistSearch("");
                                                 }}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
@@ -915,17 +923,21 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                                                    <Command key={artistKey}>
-                                                        <CommandInput placeholder="Busca o escribe un artista..." />
+                                                    <Command>
+                                                        <CommandInput 
+                                                          placeholder="Busca o escribe un artista..."
+                                                          value={artistSearch}
+                                                          onValueChange={setArtistSearch}
+                                                        />
                                                         <CommandList>
-                                                            <CommandEmpty>No se encontraron resultados. Escribe para usar este artista.</CommandEmpty>
+                                                            <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                                                             <CommandGroup>
                                                                 {artists.map((artist) => (
                                                                 <CommandItem
                                                                     value={artist}
                                                                     key={artist}
-                                                                    onSelect={(currentValue) => {
-                                                                        form.setValue("inspirationalArtist", currentValue === field.value ? "" : currentValue);
+                                                                    onSelect={() => {
+                                                                        form.setValue("inspirationalArtist", artist === field.value ? "" : artist);
                                                                         setArtistPopoverOpen(false);
                                                                     }}
                                                                 >
@@ -934,20 +946,20 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                                 </CommandItem>
                                                                 ))}
                                                             </CommandGroup>
-                                                             <CommandGroup heading="Crear Nuevo">
-                                                                <CommandItem
-                                                                    onSelect={() => {
-                                                                        const newArtist = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
-                                                                        if (newArtist) {
-                                                                            form.setValue("inspirationalArtist", newArtist);
+                                                             {artistSearch && !artists.some(a => a.toLowerCase() === artistSearch.toLowerCase()) && (
+                                                                <CommandGroup heading="Crear Nuevo">
+                                                                    <CommandItem
+                                                                        value={artistSearch}
+                                                                        onSelect={(currentValue) => {
+                                                                            form.setValue("inspirationalArtist", currentValue);
                                                                             setArtistPopoverOpen(false);
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <span className="mr-2 h-4 w-4" />
-                                                                    <span>Usar el artista que escribí</span>
-                                                                </CommandItem>
-                                                            </CommandGroup>
+                                                                        }}
+                                                                    >
+                                                                        <span className="mr-2 h-4 w-4" />
+                                                                        <span>Usar: "{artistSearch}"</span>
+                                                                    </CommandItem>
+                                                                </CommandGroup>
+                                                            )}
                                                         </CommandList>
                                                     </Command>
                                                 </PopoverContent>
@@ -1044,3 +1056,5 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
+
+    
