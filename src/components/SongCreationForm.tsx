@@ -676,7 +676,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                     value={genre}
                                                     key={genre}
                                                     onSelect={(currentValue) => {
-                                                        form.setValue("genre", currentValue === field.value ? "" : currentValue);
+                                                        form.setValue("genre", currentValue);
                                                         setGenrePopoverOpen(false);
                                                     }}
                                                 >
@@ -688,7 +688,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                             {plan === 'master' && (
                                                 <CommandGroup heading="Crear Nuevo">
                                                      <CommandItem
-                                                        onSelect={(currentValue) => {
+                                                        onSelect={() => {
                                                             const newGenre = (document.querySelector('[cmdk-input]') as HTMLInputElement)?.value;
                                                             if (newGenre) {
                                                                 form.setValue("genre", newGenre);
@@ -739,7 +739,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                             value={genre}
                                                             key={genre}
                                                             onSelect={(currentValue) => {
-                                                                form.setValue("genre2", currentValue === field.value ? "" : currentValue);
+                                                                form.setValue("genre2", currentValue);
                                                                 setGenre2PopoverOpen(false);
                                                             }}
                                                         >
@@ -779,7 +779,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                             )}/>
                         )}
                     </div>
-                    {plan === 'master' && plan !== 'creator' && !plan.includes('artist') && (
+                    {plan === 'master' && (
                          <FormField control={form.control} name="voice" render={({ field }) => (
                             <FormItem><FormLabel>Tipo de Voz Principal</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent>
                                 {voiceOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
@@ -870,7 +870,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                                                     value={artist}
                                                                     key={artist}
                                                                     onSelect={(currentValue) => {
-                                                                        form.setValue("inspirationalArtist", currentValue === field.value ? "" : currentValue);
+                                                                        form.setValue("inspirationalArtist", currentValue);
                                                                         setArtistPopoverOpen(false);
                                                                     }}
                                                                 >
@@ -954,8 +954,8 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                                   <Label
                                     htmlFor={option.value}
                                     className={cn(
-                                        "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 cursor-pointer text-center relative h-full transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:-translate-y-1 hover:shadow-xl",
-                                        "peer-data-[state=checked]:border-primary"
+                                        "flex flex-col items-center justify-between rounded-md border-2 bg-popover p-4 cursor-pointer text-center relative h-full transition-all duration-300 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary hover:-translate-y-1 hover:shadow-xl",
+                                        field.value === option.value ? "border-primary" : "border-muted"
                                     )}
                                   >
                                     {option.isRecommended && <span className={cn("text-xs text-primary-foreground px-2 py-0.5 rounded-full absolute -top-2.5", songType === 'emotional' ? 'bg-primary' : 'bg-corridos-red text-white')}>Recomendado</span>}
@@ -989,5 +989,7 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
     </Card>
   );
 }
+
+    
 
     
