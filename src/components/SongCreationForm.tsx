@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -41,7 +42,6 @@ const songCreationSchema = z.object({
   includeNames: z.boolean().default(false),
   keywords: z.string().optional(),
   referenceSong: z.string().optional(),
-  styleVoice: z.string().optional(),
   plan: z.enum(["creator", "artist", "master"], { required_error: "Debes seleccionar un plan." }),
   famousCollaboration: z.boolean().default(false),
 });
@@ -52,7 +52,7 @@ type FormStep = "filling" | "upsell" | "loading" | "result";
 
 const planOptions = [
   { value: "creator", label: "Creador", description: "1 Revisión", price: "$199" },
-  { value: "artist", label: "Artista", description: "2 Revisiones, WAV", price: "$399" },
+  { value: "artist", label: "Artista", description: "2 Revisiones, Carátula", price: "$399" },
   { value: "master", label: "Maestro", description: "3 Revisiones, Pista", price: "$799" },
 ];
 
@@ -83,11 +83,12 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
       includeNames: false,
       keywords: "",
       referenceSong: "",
-      styleVoice: "",
       plan: "artist",
       famousCollaboration: false,
     },
   });
+
+  const plan = form.watch("plan");
 
   useEffect(() => {
     if (songTypeParam) {
@@ -113,7 +114,7 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
     const finalData = {
         ...formData,
         famousCollaboration: !!collaboration,
-        styleVoice: collaboration || formData.styleVoice,
+        styleVoice: collaboration,
     };
     
     try {
@@ -280,20 +281,19 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
         </div>
 
         <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-                <AccordionTrigger className="font-headline text-lg">Detalles Avanzados (Opcional)</AccordionTrigger>
+            <AccordionItem value="item-1" disabled={plan === 'creator'} className={cn(plan === 'creator' && 'opacity-60 cursor-not-allowed')}>
+                <AccordionTrigger className="font-headline text-lg hover:no-underline">
+                  Detalles Avanzados (Planes Artista y Maestro)
+                  </AccordionTrigger>
                 <AccordionContent className="space-y-8 pt-4">
                     <FormField control={form.control} name="keywords" render={({ field }) => (
-                        <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Palabras Clave</FormLabel><FormControl><Input placeholder="Palabras o frases que DEBEN aparecer" {...field} disabled={plan === 'creator'} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="referenceSong" render={({ field }) => (
-                        <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} /></FormControl><FormMessage /></FormItem>
-                    )}/>
-                    <FormField control={form.control} name="styleVoice" render={({ field }) => (
-                        <FormItem><FormLabel>Estilo de Voz</FormLabel><FormControl><Input placeholder="Ej: Voz rasposa, similar a..., con falsete" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Canción de Referencia</FormLabel><FormControl><Input placeholder="Una canción que te guste como inspiración" {...field} disabled={plan === 'creator'}/></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={form.control} name="includeNames" render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={plan === 'creator'} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Incluir nombres</FormLabel><FormDescription>Marcar si quieres que los nombres aparezcan en la letra.</FormDescription></div></FormItem>
                     )}/>
                 </AccordionContent>
             </AccordionItem>
@@ -313,11 +313,11 @@ export function SongCreationForm({ songTypeParam }: { songTypeParam: string | nu
                       <Label
                         htmlFor={option.value}
                         className={cn(
-                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center",
+                            "flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer text-center relative",
                             option.value === 'artist' && "border-accent-gold/50"
                         )}
                       >
-                        {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2">Recomendado</span>}
+                        {option.value === 'artist' && <span className="text-xs bg-accent-gold text-accent-foreground px-2 py-0.5 rounded-full absolute -top-2.5">Recomendado</span>}
                         <span className="font-bold text-lg">{option.label}</span>
                         <span className="text-sm font-medium">{option.description}</span>
                         <span className="text-lg text-foreground font-bold mt-1">{option.price}</span>

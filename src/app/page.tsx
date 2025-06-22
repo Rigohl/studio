@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle } from 'lucide-react';
+import { Music, FileText, Send, CreditCard, Star, Quote, CheckCircle, Image as ImageIcon, Disc } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
@@ -74,7 +74,7 @@ const testimonials = [
     avatarHint: "woman portrait"
   },
   {
-    name: "Carlos G.",
+    name: "Carlos G. (Corrido)",
     quote: "Pedí un corrido para el cumpleaños de mi compadre y quedó increíble. Suena profesional y la letra está con todo. 100% recomendado.",
     avatar: "https://placehold.co/100x100.png",
     avatarHint: "man portrait"
@@ -86,7 +86,7 @@ const testimonials = [
     avatarHint: "smiling woman"
   },
   {
-    name: "Gerardo 'El Fuerte'",
+    name: "Gerardo 'El Fuerte' (Corrido)",
     quote: "El corrido narra la historia de mi negocio desde cero. Suena con poder y respeto. Justo lo que quería para contar mi legado. ¡Fierro!",
     avatar: "https://placehold.co/100x100.png",
     avatarHint: "serious man portrait"
@@ -104,7 +104,7 @@ const testimonials = [
     avatarHint: "happy family"
   },
   {
-    name: "Familia Mendoza",
+    name: "Familia Mendoza (Corrido)",
     quote: "Encargamos un corrido para mi padre, contando la historia de cómo sacó adelante a la familia. Se le salieron las lágrimas. Un trabajo de primera.",
     avatar: "https://placehold.co/100x100.png",
     avatarHint: "older man smiling"
@@ -116,7 +116,7 @@ const testimonials = [
     avatarHint: "thoughtful man"
   },
   {
-    name: "J.L. Guerrero",
+    name: "J.L. Guerrero (Corrido)",
     quote: "Necesitaba un corrido que sonara a los de antes, con una buena historia. Dieron en el clavo. La instrumentación y la voz, impecables.",
     avatar: "https://placehold.co/100x100.png",
     avatarHint: "man cowboy hat"
@@ -321,7 +321,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
             {/* Plan Creador */}
-            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl lg:hover:-translate-y-4">
+            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
               <CardHeader className="text-center pt-8">
                 <CardTitle className="font-headline text-3xl">Plan Creador</CardTitle>
                 <CardDescription className="text-lg">Para dar vida a tu idea.</CardDescription>
@@ -333,7 +333,7 @@ export default function Home() {
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Canción completa (Emocional o Corrido)</span></li>
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Letra 100% personalizada</span></li>
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Calidad profesional MP3</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>1 Revisión de letra incluida</span></li>
+                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">1 Revisión</span> de letra incluida</span></li>
                 </ul>
               </CardContent>
               <CardFooter className="flex-col gap-4 p-6">
@@ -344,7 +344,7 @@ export default function Home() {
             </Card>
 
             {/* Plan Artista - Recommended */}
-            <Card className="flex flex-col border-2 border-accent-gold/80 relative shadow-2xl">
+            <Card className="flex flex-col border-2 border-accent-gold/80 relative shadow-xl transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
               <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
                   <div className="bg-accent-gold text-accent-foreground px-4 py-1 rounded-full font-bold text-sm shadow-lg">
                       Recomendado
@@ -360,19 +360,19 @@ export default function Home() {
                 <ul className="space-y-3 text-muted-foreground pt-4">
                    <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Creador +</span></li>
                    <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">2 Revisiones</span> de letra y melodía</span></li>
-                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Entrega prioritaria</span></li>
-                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
+                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Acceso a Detalles Avanzados</span></li>
+                   <li className="flex items-start gap-3"><ImageIcon className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Carátula de Álbum</span> Digital</span></li>
                 </ul>
               </CardContent>
               <CardFooter className="flex-col gap-4 p-6">
                 <Button asChild className="w-full bg-accent-gold text-accent-foreground hover:bg-accent-gold/90 shadow-lg">
-                  <Link href="/formularios">Empezar ahora</Link>
+                  <Link href="/formularios?plan=artist">Empezar ahora</Link>
                 </Button>
               </CardFooter>
             </Card>
 
             {/* Plan Maestro */}
-            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl lg:hover:-translate-y-4">
+            <Card className="flex flex-col border-2 border-transparent transition-all duration-300 hover:border-accent-gold hover:shadow-2xl hover:-translate-y-2">
               <CardHeader className="text-center pt-8">
                 <CardTitle className="font-headline text-3xl">Plan Maestro</CardTitle>
                 <CardDescription className="text-lg">La experiencia prémium definitiva.</CardDescription>
@@ -383,8 +383,8 @@ export default function Home() {
                 <ul className="space-y-3 text-muted-foreground pt-4">
                   <li className="flex items-start gap-3 font-semibold text-foreground"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Todo lo del Plan Artista +</span></li>
                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">3 Revisiones</span> de letra y melodía</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Entrega ultra-rápida</span></li>
-                  <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
+                   <li className="flex items-start gap-3"><CheckCircle className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span>Archivo de audio <span className="font-bold text-foreground">WAV (Calidad Estudio)</span></span></li>
+                  <li className="flex items-start gap-3"><Disc className="w-5 h-5 text-green-500 mt-1 shrink-0" /><span><span className="font-bold text-foreground">Pista instrumental</span> (backing track)</span></li>
                 </ul>
               </CardContent>
               <CardFooter className="flex-col gap-4 p-6">
