@@ -37,7 +37,11 @@ const generateAlbumArtFlow = ai.defineFlow(
     const { media } = await ai.generate({
         // IMPORTANT: ONLY the googleai/gemini-2.0-flash-preview-image-generation model is able to generate images. You MUST use exactly this model to generate images.
         model: 'googleai/gemini-2.0-flash-preview-image-generation',
+<<<<<<< HEAD
         prompt: `Create a vibrant, high-quality, digital painting style album cover. The cover should not contain any text, letters, or numbers. The style should be epic and professional. The theme is: ${input.prompt}`,
+=======
+        prompt: `Épica portada de álbum estilo pintura digital profesional. Sin texto ni letras. El tema es: ${input.prompt}`,
+>>>>>>> ff6d6df (ya puedo crear canciones?)
         config: {
             responseModalities: ['TEXT', 'IMAGE'], // MUST provide both TEXT and IMAGE, IMAGE only won't work
         },

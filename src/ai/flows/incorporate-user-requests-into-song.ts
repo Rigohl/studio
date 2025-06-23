@@ -51,6 +51,7 @@ const revisionPrompt = ai.definePrompt({
       },
     ],
   },
+<<<<<<< HEAD
   prompt: `You are a professional songwriter revising a song based on client feedback.
 Your goal is to intelligently incorporate the requested changes into the existing lyrics. Maintain the song's original tone, style, and core story as much as possible unless the request specifically asks to change it.
 
@@ -66,15 +67,31 @@ Here is the original song context:
 
 Here is the current draft of the lyrics:
 --- LYRICS DRAFT ---
-{{{lyricsDraft}}}
---- END DRAFT ---
+=======
+  prompt: `Eres un compositor profesional revisando una canción basándote en los comentarios de un cliente.
+Tu objetivo es incorporar de manera inteligente los cambios solicitados en la letra existente. Mantén el tono, el estilo y la historia central originales de la canción.
 
+Contexto original de la canción:
+- Género: {{songDetails.genre}}
+- Historia: {{{songDetails.story}}}
+
+Borrador actual de la letra:
+--- BORRADOR DE LETRA ---
+>>>>>>> ff6d6df (ya puedo crear canciones?)
+{{{lyricsDraft}}}
+--- FIN DEL BORRADOR ---
+
+<<<<<<< HEAD
 Here are the client's revision requests:
 --- CLIENT REQUESTS ---
+=======
+Solicitudes de revisión del cliente:
+--- SOLICITUDES DEL CLIENTE ---
+>>>>>>> ff6d6df (ya puedo crear canciones?)
 {{{requests}}}
---- END REQUESTS ---
+--- FIN DE SOLICITUDES ---
 
-Please generate the new, revised lyrics for the song. Only output the lyrics.
+Por favor, genera la nueva letra revisada para la canción. Solo la letra.
 `,
 });
 
