@@ -23,7 +23,7 @@ export async function toWav(
 
     const bufs: Buffer[] = [];
     writer.on('error', reject);
-    writer.on('data', function (d: Buffer) {
+    writer.on('data', function (d) {
       bufs.push(d);
     });
     writer.on('end', function () {
