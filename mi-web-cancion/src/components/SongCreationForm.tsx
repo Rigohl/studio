@@ -19,13 +19,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FileUpload } from "@/components/ui/file-upload";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download, Music } from "lucide-react";
+import { Loader2, Wand2, Star, Mic2, Users, Heart, Skull, ChevronsUpDown, Check, ImageIcon, Disc, Info, Twitter, Share2, Facebook, Download, Music, Upload } from "lucide-react";
 import { createSongAction, createAlbumArtAction, reviseSongAction } from "@/app/test-pago/actions";
 import { songCreationSchema, SongCreationFormValues } from "@/config/schemas";
 import { Label } from "@/components/ui/label";
@@ -209,6 +210,9 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
       inspirationalArtist: "",
       famousCollaboration: false,
       styleVoice: "",
+      referenceAudio: [],
+      inspirationImages: [],
+      lyricsFile: [],
     },
   });
 
@@ -405,6 +409,66 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                 <FormItem><FormLabel>{theme.storyLabel}</FormLabel><FormControl><Textarea rows={5} placeholder={theme.storyPlaceholder} {...field} /></FormControl><FormDescription>Sé lo más detallado posible para un mejor resultado.</FormDescription><FormMessage /></FormItem>
             )}/>
         ),
+        referenceAudio: (
+            <FormField key="referenceAudio" control={form.control} name="referenceAudio" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Audio de Referencia (Opcional)</FormLabel>
+                    <FormControl>
+                        <FileUpload
+                            accept="audio/*"
+                            multiple={true}
+                            maxSize={25}
+                            placeholder="Sube archivos de audio que inspiren tu canción"
+                            onFilesChange={(files) => field.onChange(files)}
+                        />
+                    </FormControl>
+                    <FormDescription>
+                        Sube canciones que te gusten como referencia de estilo o melodía (máx. 25MB por archivo)
+                    </FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}/>
+        ),
+        inspirationImages: (
+            <FormField key="inspirationImages" control={form.control} name="inspirationImages" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Imágenes de Inspiración (Opcional)</FormLabel>
+                    <FormControl>
+                        <FileUpload
+                            accept="image/*"
+                            multiple={true}
+                            maxSize={10}
+                            placeholder="Sube imágenes que representen el sentimiento de tu canción"
+                            onFilesChange={(files) => field.onChange(files)}
+                        />
+                    </FormControl>
+                    <FormDescription>
+                        Fotos, artwork o imágenes que capturen la esencia de tu historia
+                    </FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}/>
+        ),
+        lyricsFile: (
+            <FormField key="lyricsFile" control={form.control} name="lyricsFile" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Archivo de Letra/Poema (Opcional)</FormLabel>
+                    <FormControl>
+                        <FileUpload
+                            accept=".txt,.doc,.docx,.pdf"
+                            multiple={false}
+                            maxSize={5}
+                            placeholder="Sube un archivo con letra o poema existente"
+                            onFilesChange={(files) => field.onChange(files)}
+                        />
+                    </FormControl>
+                    <FormDescription>
+                        Si ya tienes una letra escrita o un poema que quieres convertir en canción
+                    </FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}/>
+        ),
     };
 
     if (songType === 'corrido') {
@@ -420,6 +484,19 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
                     {commonFields.nickname}
                 </div>
                 {commonFields.relationship}
+                
+                {/* File Upload Section */}
+                <div className="space-y-6 border-t pt-6">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Upload className="h-5 w-5" />
+                        Archivos de Referencia (Opcional)
+                    </h3>
+                    <div className="space-y-6">
+                        {commonFields.referenceAudio}
+                        {commonFields.inspirationImages}
+                        {commonFields.lyricsFile}
+                    </div>
+                </div>
             </>
         );
     }
@@ -436,6 +513,19 @@ export function SongCreationForm({ songTypeParam, planParam }: { songTypeParam: 
             </div>
             {commonFields.relationship}
             {commonFields.story}
+            
+            {/* File Upload Section */}
+            <div className="space-y-6 border-t pt-6">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Upload className="h-5 w-5" />
+                    Archivos de Referencia (Opcional)
+                </h3>
+                <div className="space-y-6">
+                    {commonFields.referenceAudio}
+                    {commonFields.inspirationImages}
+                    {commonFields.lyricsFile}
+                </div>
+            </div>
         </>
     );
   }
