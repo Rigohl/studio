@@ -23,5 +23,9 @@ export const songCreationSchema = z.object({
   inspirationalArtist: z.string().optional(),
   famousCollaboration: z.boolean().optional(),
   styleVoice: z.string().optional(),
+  // File upload fields
+  referenceAudio: z.array(z.any()).optional(), // Files for reference audio
+  inspirationImages: z.array(z.any()).optional(), // Images for inspiration
+  lyricsFile: z.array(z.any()).optional(), // Text files with lyrics or poems
 });
 export type SongCreationFormValues = z.infer<typeof songCreationSchema>;
